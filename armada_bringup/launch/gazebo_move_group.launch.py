@@ -38,19 +38,13 @@ def launch_setup(context, *args, **kwargs):
     robot_source = LaunchConfiguration('robot_source').perform(context)
 
     description_package = f"{robot_source}_description"
-    bringup_package = f"{robot_source}_bringup"
     moveit_config_package = f"{robot_model}_moveit_config"
     gazebo_package = f"{robot_source}_gazebo"
 
     robot_description_pkg = get_package_share_directory(description_package)
-    bringup_package_path = get_package_share_directory(bringup_package)
     moveit_config_path = get_package_share_directory(moveit_config_package)
     gazebo_package_path = get_package_share_directory(gazebo_package)
     ros_gz_sim_path = get_package_share_directory('ros_gz_sim')
-    flexbe_onboard_path = get_package_share_directory('flexbe_onboard')
-    flexbe_webui_path = get_package_share_directory('flexbe_webui')
-
-    gazebo_models_path = os.path.join(gazebo_package_path, 'models') 
 
     # Robot Description
     xacro_path = os.path.join(robot_description_pkg, f'{robot_model}', 'xacro', f'{robot_model}' + (f'_{workstation}' if workstation else '') + '.urdf.xacro')
@@ -120,18 +114,8 @@ def launch_setup(context, *args, **kwargs):
         ],
     )
 
-    # Launch FlexBE operator control system (OCS)
-    flexbe_full = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(flexbe_webui_path, 'launch', 'flexbe_full.launch.py')),
-        launch_arguments={
-            'headless': LaunchConfiguration('headless')
-        }.items(),
-        condition=IfCondition(LaunchConfiguration('launch_flexbe')),
-    )
-
     # Spawn the robot model into the gazebo world
-    spawn_entity = Node(
+    spawn_robot = Node(
         package="ros_gz_sim",
         executable="create",
         arguments=[
@@ -144,24 +128,7 @@ def launch_setup(context, *args, **kwargs):
         output="screen",
     )
 
-    spawn_camera = Node(
-        package='ros_gz_sim',
-        executable='create',
-        arguments=[
-            '-file', f'{gazebo_package_path}/rgbd_camera/model/rgbd_camera_model.sdf',
-            '-name', 'rgbd_camera',
-            '-x', '0.5', '-y', '0.0', '-z', '2.0', '-R', '0.0', '-P', '1.5708', '-Y', '0.0',  # Adjust pose if needed, camera has no collision
-        ],
-        output='screen'
-    )
-
-    sim_camera_tf = Node(
-        package="tf2_ros",
-        executable="static_transform_publisher",
-        arguments=["0.5", "0", "1.75", "0", "1.5708", "0", "simple_pedestal", "rgbd_camera/camera_link/rgbd_camera"],   # transform from base of robot is camera height - height of base over ground (1.5 - 0.25)
-    )
-
-    bridge = Node(
+    gz_topic_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
         parameters=[{
@@ -228,134 +195,6 @@ def launch_setup(context, *args, **kwargs):
         output="screen",
     )
 
-    move_cartesian = Node(
-        package="compare_flexbe_utilities",
-        executable="cartesian_move_to_pose_service",
-        name="cartesian_move_to_pose_service",
-        output="screen",
-        parameters=[
-            {"planning_group": planning_group},
-            robot_description,
-            robot_description_semantic,
-        ],
-    )
-
-    move_pose = Node(
-        package="compare_flexbe_utilities",
-        executable="move_to_pose_service",
-        name="move_to_pose_service",
-        output="screen",
-        parameters=[
-            {"planning_group": planning_group},
-            robot_description,
-            robot_description_semantic,
-        ],
-    )
-
-    move_named = Node(
-        package="compare_flexbe_utilities",
-        executable="move_to_named_pose_service",
-        name="move_to_named_pose_service",
-        output="screen",
-        parameters=[
-            {"planning_group": planning_group},
-            robot_description,
-            robot_description_semantic,
-        ],
-    )
-
-    detect_grasps = Node(
-        package="gpd_ros",
-        executable="grasp_detection_server",
-        name="grasp_detection_server",
-        output="screen",
-        parameters=[
-            {"camera_position": [0.0, 0.0, 0.0]},
-            {"config_file": '/home/brian/flexbe_ws/gpd/cfg/ros_eigen_params.cfg'},
-            {"rviz_topic": "grasp_markers"},  # /rviz_grasps
-            {"grasps_topic": "/clustered_grasps"},
-        ],
-    )
-
-    compute_grasp_poses = Node(
-        package="gpd_ros",
-        executable="grasp_pose_server",
-        name="grasp_pose_server",
-        output="screen",
-        parameters=[
-            {"gripper_offset": 0.0},
-            {"approach_dist": 0.10},
-            {"retreat_dist": 0.0},
-            {"grasp_rot_x": 0.0},
-            {"grasp_rot_y": 0.0},
-            {"grasp_rot_z": 0.0},
-            {"grasp_rot_w": 1.0},
-            {"target_frame": "panda_link0"},
-            {"source_frame": "simple_pedestal"},
-        ],
-    )
-
-    get_pointcloud_service = Node(
-        package="compare_flexbe_utilities",
-        executable="get_point_cloud_service",
-        name="get_point_cloud_service",
-        output="screen",
-        parameters=[
-            {"default_camera_topic": "/camera/depth/points"},
-            {"target_frame": "panda_link0"},
-            {"timeout_sec": 3.0},
-        ],
-    )
-
-    euclidean_clustering_service = Node(
-        package="compare_flexbe_utilities",
-        executable="euclidean_clustering_service",
-        name="euclidean_clustering_service",
-        output="screen",
-        parameters=[
-            {"default_camera_topic": "/camera/depth/points"},
-            {"target_frame": "panda_link0"},
-            {"timeout_sec": 3.0},
-        ],
-    )
-
-    filter_by_indices_service = Node(
-        package="compare_flexbe_utilities",
-        executable="filter_by_indices_service",
-        name="filter_by_indices_service",
-        output="screen",
-        parameters=[
-            {"default_camera_topic": "/camera/depth/points"},
-            {"target_frame": "panda_link0"},
-            {"timeout_sec": 3.0},
-        ],
-    )
-
-    spawn_object = Node(
-        package='ros_gz_sim',
-        executable='create',
-        arguments=[
-            '-file', '/home/brian/gazebo_models/wood_cube_10cm/model.sdf',
-            '-name', 'object_1',
-            '-x', '0.55', '-y', '0.05', '-z', '0.65', '-R', '0.0', '-P', '0.0', '-Y', '0.0',  # Adjust pose if needed
-        ],
-        output='screen'
-    )
-
-    detect_grasps = Node(
-        package="gpd_ros",
-        executable="grasp_detection_server",
-        name="grasp_detection_server",
-        output="screen",
-        parameters=[
-            {"camera_position": [0.0, 0.0, 0.0]},
-            {"config_file": '/home/brian/flexbe_ws/gpd/cfg/ros_eigen_params.cfg'},
-            {"grasps_topic": 'clustered_grasps'},
-            # {"rviz_topic": "grasp_plotter"},
-            {"service_name": 'detect_grasps'},
-        ],
-    )
-
     gz_services_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
@@ -372,25 +211,13 @@ def launch_setup(context, *args, **kwargs):
     # start up all of the nodes
     return [
         gz_sim,
-        flexbe_full,
-        spawn_entity,
-        spawn_camera,
-        sim_camera_tf,
-        bridge,
+        spawn_robot,
+        gz_topic_bridge,
         rviz_node,
         robot_state_publisher,
         run_move_group_node,
         load_arm_controller,
         load_hand_controller,
-        move_cartesian,
-        move_named,
-        move_pose,
-        get_pointcloud_service,
-        euclidean_clustering_service,
-        filter_by_indices_service,
-        # spawn_object,
-        detect_grasps,
-        compute_grasp_poses,
         gz_services_bridge,
     ]
 
@@ -415,16 +242,6 @@ def generate_launch_description():
             'workstation',
             default_value='simple_pedestal',
             description='Name of the pedestal or workstation the robot base is attached to (used to locate packages and files).'
-        ),
-        DeclareLaunchArgument(
-            'headless', 
-            default_value="False",
-            description="Run FlexBE OCS without the web UI frontend."
-        ),
-        DeclareLaunchArgument(
-            'launch_flexbe',
-            default_value='False',
-            description='If true, start FlexBE (onboard + OCS).'
         ),
         OpaqueFunction(function=launch_setup),
     ])
