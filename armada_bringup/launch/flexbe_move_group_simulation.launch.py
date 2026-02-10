@@ -78,6 +78,7 @@ def launch_setup(context, *args, **kwargs):
     # Robot Description
     xacro_path = os.path.join(
         robot_description_pkg,
+        "old",
         f"{robot_model}",
         "xacro",
         f"{robot_model}" + (f"_{workstation}" if workstation else "") + ".urdf.xacro",
