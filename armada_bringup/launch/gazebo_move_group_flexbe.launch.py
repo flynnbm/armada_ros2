@@ -244,7 +244,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     move_cartesian = Node(
-        package="move_group_flexbe_utilities",
+        package="move_group_ros2",
         executable="cartesian_move_to_pose_service",
         name="cartesian_move_to_pose_service",
         output="screen",
@@ -256,7 +256,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     move_pose = Node(
-        package="move_group_flexbe_utilities",
+        package="move_group_ros2",
         executable="move_to_pose_service",
         name="move_to_pose_service",
         output="screen",
@@ -268,7 +268,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     move_named = Node(
-        package="move_group_flexbe_utilities",
+        package="move_group_ros2",
         executable="move_to_named_pose_service",
         name="move_to_named_pose_service",
         output="screen",
@@ -280,7 +280,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     mtc_plan_and_execute_pick = Node(
-        package="mtc_flexbe_utilities",
+        package="mtc_ros2",
         executable="mtc_plan_and_execute_pick_action",
         name="mtc_plan_and_execute_pick_action",
         output="screen",
@@ -295,7 +295,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     mtc_approach_and_pick = Node(
-        package="mtc_flexbe_utilities",
+        package="mtc_ros2",
         executable="mtc_approach_and_pick_action",
         name="mtc_approach_and_pick_action",
         output="screen",
@@ -310,7 +310,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     mtc_retreat_and_place = Node(
-        package="mtc_flexbe_utilities",
+        package="mtc_ros2",
         executable="mtc_retreat_and_place_action",
         name="mtc_retreat_and_place_action",
         output="screen",
@@ -343,7 +343,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     get_pointcloud_service = Node(
-        package="pcl_flexbe_utilities",
+        package="pcl_ros2",
         executable="get_point_cloud_service",
         name="get_point_cloud_service",
         output="screen",
@@ -355,7 +355,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     euclidean_clustering_service = Node(
-        package="pcl_flexbe_utilities",
+        package="pcl_ros2",
         executable="euclidean_clustering_service",
         name="euclidean_clustering_service",
         output="screen",
@@ -367,7 +367,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     filter_by_indices_service = Node(
-        package="pcl_flexbe_utilities",
+        package="pcl_ros2",
         executable="filter_by_indices_service",
         name="filter_by_indices_service",
         output="screen",
@@ -379,14 +379,14 @@ def launch_setup(context, *args, **kwargs):
     )
 
     plane_segmentation_service = Node(
-        package="pcl_flexbe_utilities",
+        package="pcl_ros2",
         executable="plane_segmentation_service",
         name="plane_segmentation_service",
         output="screen",
     )
 
     passthrough_filter_service = Node(
-        package="pcl_flexbe_utilities",
+        package="pcl_ros2",
         executable="passthrough_filter_service",
         name="passthrough_filter_service",
         output="screen",
@@ -398,7 +398,7 @@ def launch_setup(context, *args, **kwargs):
         arguments=[
             '-file', f'{robot_description_pkg}/simple_objects/wood_cylinder_flared_1_25cm/model.sdf',
             '-name', 'object_0',
-            '-x', '0.55', '-y', '0.075', '-z', '0.675', '-R', '0.0', '-P', '0.0', '-Y', '0.0',
+            '-x', '0.55', '-y', '0.075', '-z', '0.685', '-R', '0.0', '-P', '0.0', '-Y', '0.0',
         ],
         output='screen'
     )
@@ -409,7 +409,7 @@ def launch_setup(context, *args, **kwargs):
         arguments=[
             '-file', f'{robot_description_pkg}/simple_objects/wood_cylinder_flared_1_25cm/model.sdf',
             '-name', 'object_1',
-            '-x', '0.75', '-y', '-0.18', '-z', '0.675', '-R', '0.0', '-P', '0.0', '-Y', '0.0', 
+            '-x', '0.75', '-y', '-0.18', '-z', '0.685', '-R', '0.0', '-P', '0.0', '-Y', '0.0', 
         ],
         output='screen'
     )
@@ -420,7 +420,7 @@ def launch_setup(context, *args, **kwargs):
         arguments=[
             '-file', f'{robot_description_pkg}/simple_objects/wood_cylinder_flared_1_25cm/model.sdf',
             '-name', 'object_2',
-            '-x', '0.65', '-y', '0.225', '-z', '0.675', '-R', '0.0', '-P', '0.0', '-Y', '0.0',
+            '-x', '0.65', '-y', '0.225', '-z', '0.685', '-R', '0.0', '-P', '0.0', '-Y', '0.0',
         ],
         output='screen'
     )

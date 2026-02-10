@@ -156,7 +156,7 @@ def launch_setup(context, *args, **kwargs):
         ],
     )
 
-    rviz_config_file = os.path.join(moveit_config_path, 'config', 'config.rviz')
+    rviz_config_file = os.path.join(moveit_config_path, 'config', 'moveit.rviz')
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
