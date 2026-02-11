@@ -184,14 +184,14 @@ def launch_setup(context, *args, **kwargs):
     load_arm_controller = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=[f"{robot_make}_arm_controller"],
+        arguments=["arm_controller"],
         output="screen",
     )
 
     load_hand_controller = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=[f"{robot_make}_hand_controller"],
+        arguments=["gripper_controller"],
         output="screen",
     )
 
