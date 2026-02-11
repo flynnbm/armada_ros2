@@ -17,6 +17,13 @@ install(DIRECTORY old/workstation/ DESTINATION share/${PROJECT_NAME}/workstation
 install(DIRECTORY old/sensor_mount/ DESTINATION share/${PROJECT_NAME}/sensor_mount)
 install(DIRECTORY old/simple_objects/ DESTINATION share/${PROJECT_NAME}/simple_objects)
 
+install(DIRECTORY
+  launch
+  urdf
+  rviz
+  DESTINATION share/${PROJECT_NAME}
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
