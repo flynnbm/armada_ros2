@@ -15,6 +15,11 @@ install(DIRECTORY panda/ DESTINATION share/${PROJECT_NAME}/panda)
 install(DIRECTORY tm5-700/ DESTINATION share/${PROJECT_NAME}/tm5-700)
 install(DIRECTORY rgbd_camera/ DESTINATION share/${PROJECT_NAME}/rgbd_camera)
 
+install(DIRECTORY
+  xacro
+  DESTINATION share/${PROJECT_NAME}
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
