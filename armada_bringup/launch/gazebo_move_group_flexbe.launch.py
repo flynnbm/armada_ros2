@@ -34,12 +34,13 @@ def load_yaml(package_name, file_path):
 def launch_setup(context, *args, **kwargs):
     robot_make = LaunchConfiguration('robot_make').perform(context)
     robot_model = LaunchConfiguration('robot_model').perform(context)
+    end_effector = LaunchConfiguration('end_effector').perform(context)
     workstation = LaunchConfiguration('workstation').perform(context)
     robot_source = LaunchConfiguration('robot_source').perform(context)
 
     description_package = f"{robot_source}_description"
     bringup_package = f"{robot_source}_bringup"
-    moveit_config_package = f"{robot_model}_moveit_config"
+    moveit_config_package = f"{robot_model}_{end_effector}_moveit_config"
     gazebo_package = f"{robot_source}_gazebo"
 
     robot_description_pkg = get_package_share_directory(description_package)
@@ -495,6 +496,11 @@ def generate_launch_description():
             'robot_model',
             default_value='panda',
             description='Name of the robot model (panda, ur5e, tm5-700, etc...) to launch (used to locate packages and files).'
+        ),
+        DeclareLaunchArgument(
+            'end_effector',
+            default_value='panda_hand',
+            description='Name of the end effector model (panda_hand, robotiq_2f85, etc...) to launch (used to locate packages and files).'
         ),
         DeclareLaunchArgument(
             'robot_source',
