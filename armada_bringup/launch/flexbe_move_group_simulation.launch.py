@@ -29,6 +29,7 @@ def launch_setup(context, *args, **kwargs):
     # --- Common args ---
     robot_make = LaunchConfiguration("robot_make").perform(context)
     robot_model = LaunchConfiguration("robot_model").perform(context)
+    end_effector = LaunchConfiguration('end_effector').perform(context)
     robot_source = LaunchConfiguration("robot_source").perform(context)
     workstation = LaunchConfiguration("workstation").perform(context)
 
@@ -51,7 +52,7 @@ def launch_setup(context, *args, **kwargs):
     base_launch_path = os.path.join(
         get_package_share_directory("armada_bringup"),
         "launch",
-        "gazebo_move_group.launch.py",
+        "gazebo_move_group_flexbe.launch.py",
     )
 
     include_gazebo_move_group = IncludeLaunchDescription(
@@ -67,7 +68,7 @@ def launch_setup(context, *args, **kwargs):
 
     # FlexBE
     description_package = f"{robot_source}_description"
-    moveit_config_package = f"{robot_model}_moveit_config"
+    moveit_config_package = f"{robot_model}_{end_effector}_moveit_config"
     gazebo_package = f"{robot_source}_gazebo"
 
     robot_description_pkg = get_package_share_directory(description_package)
@@ -237,6 +238,7 @@ def generate_launch_description():
         # --- existing args forwarded to the base launch ---
         DeclareLaunchArgument("robot_make", default_value="panda"),
         DeclareLaunchArgument("robot_model", default_value="panda"),
+        DeclareLaunchArgument("end_effector", default_value="panda_hand"),
         DeclareLaunchArgument("robot_source", default_value="armada"),
         DeclareLaunchArgument("workstation", default_value="simple_pedestal"),
 
