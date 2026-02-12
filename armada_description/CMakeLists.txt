@@ -11,12 +11,6 @@ find_package(ament_cmake REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-install(DIRECTORY old/panda/ DESTINATION share/${PROJECT_NAME}/panda)
-install(DIRECTORY old/tm5-700/ DESTINATION share/${PROJECT_NAME}/tm5-700)
-install(DIRECTORY old/workstation/ DESTINATION share/${PROJECT_NAME}/workstation)
-install(DIRECTORY old/sensor_mount/ DESTINATION share/${PROJECT_NAME}/sensor_mount)
-install(DIRECTORY old/simple_objects/ DESTINATION share/${PROJECT_NAME}/simple_objects)
-
 install(DIRECTORY
   launch
   urdf
