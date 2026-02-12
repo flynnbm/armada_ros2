@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Provide an absolute path OR a path expanded by xacro before Gazebo sees it -->
+  <xacro:macro name="armada_gz_ros2_control" params="controllers_yaml">
+    <gazebo>
+      <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin"
+              filename="libgz_ros2_control-system.so">
+        <parameters>${controllers_yaml}</parameters>
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+
+</robot
