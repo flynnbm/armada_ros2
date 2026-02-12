@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find ur_description)/urdf/inc/ur_joint_control.xacro" />
+
+  <xacro:macro name="armada_arm_ros2_control" params="
+      prefix
+      initial_positions:=${dict(shoulder_pan_joint=0.0,shoulder_lift_joint=-1.57,elbow_joint=0.0,wrist_1_joint=-1.57,wrist_2_joint=0.0,wrist_3_joint=0.0)}
+    ">
+
+    <ros2_control name="${prefix}ur_arm_ros2_control" type="system">
+      <hardware>
+        <!-- Gazebo Sim -->
+        <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+      </hardware>
+
+      <xacro:ur_joint_control_description
+        tf_prefix="${prefix}"
+        initial_positions="${initial_positions}"
+      />
+    </ros2_control>
+
+  </xacro:macro>
+
+</robot>

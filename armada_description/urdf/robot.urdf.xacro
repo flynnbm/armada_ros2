@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<robot name="armada_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Generic-ish selectors -->
+  <xacro:arg name="model" default="ur5e"/>
+  <xacro:arg name="end_effector" default="robotiq_2f85"/>
+
+  <!-- ros2_control toggles (viewer should default off) -->
+  <xacro:arg name="use_ros2_control" default="false"/>
+  <xacro:arg name="sim_gazebo" default="false"/>
+
+  <!-- Gazebo plugin wrapper -->
+  <xacro:include filename="$(find armada_gazebo)/xacro/modules/arms/$(arg model)/macro.gazebo.xacro"/>
+
+  <!-- Control Files -->
+  <xacro:include filename="$(find armada_description)/urdf/modules/arms/$(arg model)/ros2_control.xacro"/>
+  <xacro:include filename="$(find armada_description)/urdf/modules/end_effectors/$(arg end_effector)/ros2_control.xacro"/>
+
+  <!-- IMPORTANT: use tf_prefix, not prefix, and make it model-based -->
+  <xacro:arg name="prefix" default="$(arg model)_"/>
+
+  <!-- Include your wrappers (not vendor macros directly) -->
+  <xacro:include filename="$(find armada_description)/urdf/modules/arms/$(arg model)/arm.xacro"/>
+  <xacro:include filename="$(find armada_description)/urdf/modules/end_effectors/$(arg end_effector)/ee.xacro"/>
+
+  <!-- gazebo -->
+  <xacro:arm_gazebo model="$(arg model)" />
+
+  <!-- Arm ros2_control block -->
+  <xacro:armada_arm_ros2_control 
+    prefix="$(arg prefix)" >
+  </xacro:armada_arm_ros2_control>
+
+  <!-- Gripper ros2_control block -->
+  <xacro:armada_ee_ros2_control
+    prefix="" >
+  </xacro:armada_ee_ros2_control>
+
+  <!-- World/root -->
+  <link name="world"/>
+
+  <!-- Arm: same scene placement you used before -->
+  <xacro:armada_arm 
+    parent="world">
+    <origin xyz="0 0 1" rpy="0 0 0"/>
+  </xacro:armada_arm>
+
+  <!-- End-effector: attach directly to UR flange (sensor_mount removed) -->
+  <xacro:armada_ee
+    parent="$(arg model)_flange" >
+    <origin xyz="0 0 0" rpy="${pi/2} 0 ${pi/2}"/>
+  </xacro:armada_ee>
+
+</robot>

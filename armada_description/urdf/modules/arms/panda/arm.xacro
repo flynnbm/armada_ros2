@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Vendor macro include stays here -->
+  <xacro:include filename="$(find panda_description)/urdf/macro.panda_arm.urdf.xacro" />
+
+  <!-- Wrapper macro that your robot.urdf.xacro calls -->
+  <xacro:macro name="armada_arm" params="parent *origin">
+
+    <xacro:panda_arm
+      ns=""
+      prefix=""
+      parent="${parent}">
+
+      <!-- Use the origin block passed from robot.urdf.xacro -->
+      <!-- <xacro:insert_block name="origin"/> -->
+    </xacro:panda_arm>
+
+  </xacro:macro>
+
+</robot>

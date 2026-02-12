@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Vendor macro include stays here -->
+  <xacro:include filename="$(find robotiq_description)/urdf/robotiq_2f_85_macro.urdf.xacro" />
+
+  <xacro:macro name="armada_ee" params="parent *origin">
+
+    <xacro:robotiq_gripper
+      name="RobotiqGripperHardwareInterface"
+      prefix=""
+      parent="${parent}"
+      use_fake_hardware="true"
+      com_port="/dev/ttyUSB0">
+      <xacro:insert_block name="origin"/>
+    </xacro:robotiq_gripper>
+
+  </xacro:macro>
+
+</robot>
