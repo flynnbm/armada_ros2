@@ -48,6 +48,7 @@ def launch_setup(context, *args, **kwargs):
     moveit_config_path = get_package_share_directory(moveit_config_package)
     gazebo_package_path = get_package_share_directory(gazebo_package)
     ros_gz_sim_path = get_package_share_directory('ros_gz_sim')
+    mnet_pkg_path = get_package_share_directory('mnet_scenes_gazebo')
     flexbe_webui_path = get_package_share_directory('flexbe_webui')
 
     home_dir = os.path.expanduser("~")
@@ -56,7 +57,7 @@ def launch_setup(context, *args, **kwargs):
     # Robot Description
     xacro_path = os.path.join(robot_description_pkg, f'{robot_model}', 'xacro', f'{robot_model}' + (f'_{workstation}' if workstation else '') + '.urdf.xacro')
     robot_description_config = xacro.process_file(xacro_path)
-    robot_description = {'robot_description': robot_description_config.toxml()}
+    robot_description = {'robot_description': robot_description_config.toxml()} # type: ignore
 
     # SRDF
     robot_description_semantic_config = load_file(moveit_config_package, f'config/{robot_model}.srdf')
@@ -67,7 +68,7 @@ def launch_setup(context, *args, **kwargs):
     robot_description_kinematics = {'robot_description_kinematics': kinematics_yaml}
 
     # Planning Group
-    planning_group = f"{robot_make}_arm"
+    planning_group = "arm"
 
     # OMPL Planning
     ompl_planning_pipeline_config = {
@@ -233,14 +234,14 @@ def launch_setup(context, *args, **kwargs):
     load_arm_controller = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=[f"{robot_make}_arm_controller"],
+        arguments=["arm_controller"],
         output="screen",
     )
 
     load_hand_controller = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=[f"{robot_make}_hand_controller"],
+        arguments=["hand_controller"],
         output="screen",
     )
 
@@ -426,6 +427,12 @@ def launch_setup(context, *args, **kwargs):
         output='screen'
     )
 
+    # Launch gz_sim
+    mnet_spawn_scene = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(mnet_pkg_path, 'launch', 'create_scene.launch.py')),
+    )
+
     detect_grasps = Node(
         package="gpd_ros",
         executable="grasp_detection_server",
@@ -480,6 +487,7 @@ def launch_setup(context, *args, **kwargs):
         spawn_object0,
         spawn_object1,
         spawn_object2,
+        # mnet_spawn_scene,
         detect_grasps,
         compute_grasp_poses,
         gz_services_bridge,
