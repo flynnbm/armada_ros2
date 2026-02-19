@@ -49,7 +49,7 @@ def launch_setup(context, *args, **kwargs):
     # Robot Description
     xacro_path = os.path.join(robot_description_pkg, f'{robot_model}', 'xacro', f'{robot_model}' + (f'_{workstation}' if workstation else '') + '.urdf.xacro')
     robot_description_config = xacro.process_file(xacro_path)
-    robot_description = {'robot_description': robot_description_config.toxml()}
+    robot_description = {'robot_description': robot_description_config.toxml()} # type: ignore
 
     # SRDF
     robot_description_semantic_config = load_file(moveit_config_package, f'config/{robot_model}.srdf')
