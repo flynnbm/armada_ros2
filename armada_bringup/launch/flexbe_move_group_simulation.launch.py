@@ -31,15 +31,15 @@ def launch_setup(context, *args, **kwargs):
     robot_model = LaunchConfiguration("robot_model").perform(context)
     end_effector = LaunchConfiguration('end_effector').perform(context)
     robot_source = LaunchConfiguration("robot_source").perform(context)
-    workstation = LaunchConfiguration("workstation").perform(context)
 
     simulator = LaunchConfiguration("simulator").perform(context)
 
     # Mujoco
     mujoco_launch_path = os.path.join(
-        get_package_share_directory("panda_sim"),
+        # get_package_share_directory("panda_sim"),
+        get_package_share_directory("armada_bringup"),
         "launch",
-        "bringup.launch.py",
+        "mujoco_bringup.launch.py",
     )
 
     include_mujoco_bringup = IncludeLaunchDescription(
@@ -49,14 +49,21 @@ def launch_setup(context, *args, **kwargs):
     )
 
     # Gazebo
-    base_launch_path = os.path.join(
+    gazebo_sim_launch_path = os.path.join(
         get_package_share_directory("armada_bringup"),
         "launch",
         "gazebo_move_group_flexbe.launch.py",
     )
 
+    # # Pick and place nodes (GPD)
+    # pick_and_place_gpd_nodes_launch_path = os.path.join(
+    #     get_package_share_directory("armada_bringup"),
+    #     "launch",
+    #     "pick_and_place_gpd_nodes.launch.py",
+    # )
+
     include_gazebo_move_group = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(base_launch_path),
+        PythonLaunchDescriptionSource(gazebo_sim_launch_path),
         launch_arguments={
             "robot_make": LaunchConfiguration("robot_make"),
             "robot_model": LaunchConfiguration("robot_model"),
@@ -66,31 +73,21 @@ def launch_setup(context, *args, **kwargs):
         condition=IfCondition(PythonExpression([f"'{simulator}' == 'gazebo'"])),
     )
 
+    # include_pick_and_place_nodes = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(pick_and_place_gpd_nodes_launch_path),
+    #     condition=IfCondition(
+    #         PythonExpression([f"'{simulator}' == 'mujoco'"])
+    #     ),
+    # )
+
     # FlexBE
     description_package = f"{robot_source}_description"
     moveit_config_package = f"{robot_model}_{end_effector}_moveit_config"
     gazebo_package = f"{robot_source}_gazebo"
 
     robot_description_pkg = get_package_share_directory(description_package)
-    moveit_config_path = get_package_share_directory(moveit_config_package)
     gazebo_package_path = get_package_share_directory(gazebo_package)
     flexbe_webui_path = get_package_share_directory("flexbe_webui")
-
-    # Robot Description
-    xacro_path = os.path.join(
-        robot_description_pkg,
-        f"{robot_model}",
-        "xacro",
-        f"{robot_model}" + (f"_{workstation}" if workstation else "") + ".urdf.xacro",
-    )
-    robot_description_config = xacro.process_file(xacro_path)
-    robot_description = {"robot_description": robot_description_config.toxml()}
-
-    # SRDF
-    robot_description_semantic_config = load_file(
-        moveit_config_package, f"config/{robot_model}.srdf"
-    )
-    robot_description_semantic = {"robot_description_semantic": robot_description_semantic_config}
 
     # OMPL planning
     ompl_planning_pipeline_config = {
@@ -223,6 +220,7 @@ def launch_setup(context, *args, **kwargs):
 
     return [
         include_gazebo_move_group,
+        # include_pick_and_place_nodes,
         include_mujoco_bringup,
         flexbe_full,
         spawn_camera,
