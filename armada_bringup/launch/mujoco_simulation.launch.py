@@ -3,9 +3,10 @@
 import os
 import xacro
 import yaml
+import sys
 
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, LogInfo
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
@@ -31,12 +32,89 @@ def load_yaml(package_name, file_path):
     except OSError:
         return None
 
+def _generate_scene_at_launch(pkg_share, config_rel_path, seed=None):
+    """
+    Run scene generation synchronously during launch-description construction.
+    Guarantees current_scene.xml exists before any node tries to load it.
+    """
+    import json
+
+    config_path = os.path.join(pkg_share, config_rel_path)
+    if not os.path.isfile(config_path):
+        raise FileNotFoundError(
+            f"Scene config not found: {config_path}\n"
+            f"Make sure the config file is installed to the package share directory."
+        )
+
+    # Make sure panda_sim is importable (works with both --symlink-install
+    # and regular install, as long as the package is on PYTHONPATH after
+    # sourcing install/setup.bash)
+    from panda_sim.scene_generation import generate_scene_from_config
+
+    with open(config_path, "r") as f:
+        cfg = json.load(f)
+
+    scene_cfg = cfg["scene"]
+
+    # Resolve template and output paths relative to the installed share dir
+    scene_cfg["template_scene"] = os.path.join(
+        pkg_share, scene_cfg["template_scene"])
+    scene_cfg["output_scene"] = os.path.join(
+        pkg_share, scene_cfg["output_scene"])
+
+    if seed is None:
+        seed = cfg.get("experiment", {}).get("random_seed", None)
+    if not isinstance(seed, int):
+        seed = None
+
+    instances = generate_scene_from_config(scene_cfg, seed=seed)
+
+    print(f"[simulation.launch] Generated scene: {scene_cfg['output_scene']}")
+    print(f"[simulation.launch] Placed {len(instances)} objects:")
+    for inst in instances:
+        p = inst["pos"]
+        print(f"  {inst['name']:12s}  {inst['type']:20s}  "
+              f"({p[0]:+.3f}, {p[1]:+.3f}, {p[2]:+.3f})")
+
+    return scene_cfg["output_scene"]
+
 def generate_launch_description():
     pkg_share     = get_package_share_directory('panda_sim')
     urdf_file     = os.path.join(pkg_share, 'mujoco_models',   'panda.urdf')
     mujoco_params = os.path.join(pkg_share, 'config', 'mujoco_params.yaml')
     controllers   = os.path.join(pkg_share, 'config', 'controllers.yaml')
     spawner_launch= os.path.join(pkg_share, 'launch', 'controllers_spawner.launch.py')
+
+    # ------------------------------------------------------------------ #
+    #  Launch argument: scene_config (optional)                            #
+    # ------------------------------------------------------------------ #
+    scene_config_arg = DeclareLaunchArgument(
+        'scene_config',
+        default_value='',
+        description='Relative path (within panda_sim share) to a scene config JSON. '
+                    'Leave empty to skip scene generation.'
+    )
+
+    # Read the argument value at description-construction time, because
+    # we need the scene XML to exist BEFORE nodes are constructed.
+    scene_config_val = ''
+    for arg in sys.argv:
+        if arg.startswith('scene_config:='):
+            scene_config_val = arg.split(':=', 1)[1]
+
+    # ------------------------------------------------------------------ #
+    #  Scene generation (synchronous)                                      #
+    # ------------------------------------------------------------------ #
+    info_actions = []
+    if scene_config_val:
+        model_xml = _generate_scene_at_launch(pkg_share, scene_config_val)
+        info_actions.append(
+            LogInfo(msg=f'Using generated scene: {model_xml}')
+        )
+    else:
+        info_actions.append(
+            LogInfo(msg='No scene_config provided; using default model from URDF.')
+        )
 
     # load URDF
     with open(urdf_file, 'r') as f:
@@ -55,16 +133,17 @@ def generate_launch_description():
         ],
     )
 
-    # # 2) MuJoCo sim node via python module
-    # sim_process = ExecuteProcess(
-    #     cmd=[
-    #         'python3', '-m', 'panda_sim.mujoco_sim_node',
-    #         '--ros-args', '--params-file', mujoco_params
-    #     ],
-    #     output='screen'
-    # )
+    # 2) MuJoCo sim node via python module
+    sim_process = ExecuteProcess(
+        cmd=[
+            'python3', '-m', 'panda_sim.mujoco_sim_node',
+            '--ros-args', '--params-file', mujoco_params
+        ],
+        output='screen'
+    )
 
-    # 3) Controller manager
+
+    # 2) Controller manager
     cm_node = Node(
         package='controller_manager',
         executable='ros2_control_node',
@@ -86,7 +165,7 @@ def generate_launch_description():
         package='depth_image_proc',
         executable='point_cloud_xyz_node',
         name='point_cloud_xyz_node',
-        output='screen',
+        # output='screen',
         remappings=[
             ('image_rect', '/camera/depth/image_raw'),
             ('camera_info', '/camera/camera_info'),
@@ -99,7 +178,7 @@ def generate_launch_description():
         package='topic_tools',
         executable='relay',
         name='camera_info_relay',
-        output='screen',
+        # output='screen',
         arguments=['/camera/camera_info', '/camera/depth/camera_info'],
     )
 
@@ -108,7 +187,7 @@ def generate_launch_description():
         package='tf2_ros',
         executable='static_transform_publisher',
         name='tf_panda_hand_to_d435i',
-        output='screen',
+        # output='screen',
         arguments=[
             '0.045', '0', '0.0075',          # x y z
             '0', '0', '0.707107', '0.707107',# qx qy qz qw
@@ -121,7 +200,7 @@ def generate_launch_description():
         package='tf2_ros',
         executable='static_transform_publisher',
         name='tf_d435i_to_mujoco_camera',
-        output='screen',
+        # output='screen',
         arguments=[
             '0', '0', '0',                   # x y z
             '0', '0', '1', '0',              # qx qy qz qw
@@ -380,7 +459,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         rsp_node,
-        # sim_process,
+        sim_process,
         cm_node,
         point_cloud_xyz_node,
         camera_info_relay,
