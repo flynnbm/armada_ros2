@@ -448,6 +448,16 @@ def generate_launch_description():
         ],
     )
 
+    add_collision_object_service = Node(
+        package="planning_scene_ros2",
+        executable="add_collision_object_service",
+        name="add_collision_object_service",
+        output="screen",
+        parameters=[
+            {"frame_id": "world"},
+        ],
+    )
+
     # ------------------------------------------------------------
     # end of my nodes
     # ------------------------------------------------------------
@@ -480,4 +490,5 @@ def generate_launch_description():
         passthrough_filter_service,
         detect_grasps,
         compute_grasp_poses,
+        add_collision_object_service,
     ])

@@ -394,6 +394,16 @@ def launch_setup(context, *args, **kwargs):
         output="screen",
     )
 
+    add_collision_object_service = Node(
+        package="planning_scene_ros2",
+        executable="add_collision_object_service",
+        name="add_collision_object_service",
+        output="screen",
+        parameters=[
+            {"frame_id": "world"},
+        ],
+    )
+
     spawn_object0 = Node(
         package='ros_gz_sim',
         executable='create',
@@ -484,6 +494,7 @@ def launch_setup(context, *args, **kwargs):
         euclidean_clustering_service,
         filter_by_indices_service,
         passthrough_filter_service,
+        add_collision_object_service,
         spawn_object0,
         spawn_object1,
         spawn_object2,
