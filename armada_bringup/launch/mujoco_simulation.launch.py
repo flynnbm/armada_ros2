@@ -133,14 +133,14 @@ def generate_launch_description():
         ],
     )
 
-    # 2) MuJoCo sim node via python module
-    sim_process = ExecuteProcess(
-        cmd=[
-            'python3', '-m', 'panda_sim.mujoco_sim_node',
-            '--ros-args', '--params-file', mujoco_params
-        ],
-        output='screen'
-    )
+    # # 2) MuJoCo sim node via python module
+    # sim_process = ExecuteProcess(
+    #     cmd=[
+    #         'python3', '-m', 'panda_sim.mujoco_sim_node',
+    #         '--ros-args', '--params-file', mujoco_params
+    #     ],
+    #     output='screen'
+    # )
 
 
     # 2) Controller manager
@@ -189,7 +189,7 @@ def generate_launch_description():
         name='tf_panda_hand_to_d435i',
         # output='screen',
         arguments=[
-            '0.045', '0', '0.0075',          # x y z
+            '0.095', '0', '0.0075',          # x y z
             '0', '0', '0.707107', '0.707107',# qx qy qz qw
             'panda_hand', 'd435i',           # parent child
         ],
@@ -216,18 +216,18 @@ def generate_launch_description():
     # adding in FlexBE Full launch here
     # ------------------------------------------------------------
 
-    # FlexBE WebUI
-    flexbe_webui_path = get_package_share_directory('flexbe_webui')
+    # # FlexBE WebUI
+    # flexbe_webui_path = get_package_share_directory('flexbe_webui')
 
-    # Launch FlexBE operator control system (OCS)
-    flexbe_full = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(flexbe_webui_path, 'launch', 'flexbe_full.launch.py')),
-        launch_arguments={
-            'headless': 'True'
-        }.items(),
-        condition=IfCondition(LaunchConfiguration('launch_flexbe')),
-    )
+    # # Launch FlexBE operator control system (OCS)
+    # flexbe_full = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(
+    #         os.path.join(flexbe_webui_path, 'launch', 'flexbe_full.launch.py')),
+    #     launch_arguments={
+    #         'headless': 'True'
+    #     }.items(),
+    #     condition=IfCondition(LaunchConfiguration('launch_flexbe')),
+    # )
 
     # ------------------------------------------------------------
     # end of FlexBE
@@ -454,7 +454,7 @@ def generate_launch_description():
         name="add_collision_object_service",
         output="screen",
         parameters=[
-            {"frame_id": "world"},
+            {"frame_id": "panda_link0"},
         ],
     )
 
@@ -469,14 +469,14 @@ def generate_launch_description():
 
     return LaunchDescription([
         rsp_node,
-        sim_process,
+        # sim_process,
         cm_node,
         point_cloud_xyz_node,
         camera_info_relay,
         tf_panda_hand_to_d435i,
         tf_d435i_to_mujoco_camera,
         spawner_include,
-        flexbe_full,
+        # flexbe_full,
         move_cartesian,
         move_named,
         move_pose,
