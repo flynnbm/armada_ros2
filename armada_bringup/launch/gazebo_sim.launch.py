@@ -34,61 +34,33 @@ def load_yaml(package_name, file_path):
 def launch_setup(context, *args, **kwargs):
     robot_make = LaunchConfiguration('robot_make').perform(context)
     robot_model = LaunchConfiguration('robot_model').perform(context)
-    workstation = LaunchConfiguration('workstation').perform(context)
     robot_source = LaunchConfiguration('robot_source').perform(context)
-
-    description_package = f"{robot_source}_description"
-    moveit_config_package = f"{robot_model}_moveit_config"
     gazebo_package = f"{robot_source}_gazebo"
 
-    robot_description_pkg = get_package_share_directory(description_package)
-    moveit_config_path = get_package_share_directory(moveit_config_package)
     gazebo_package_path = get_package_share_directory(gazebo_package)
     ros_gz_sim_path = get_package_share_directory('ros_gz_sim')
 
+    description_package = "robotiq_description"
+    robot_description_pkg = get_package_share_directory(description_package)
+
     # Robot Description
-    xacro_path = os.path.join(robot_description_pkg, f'{robot_model}', 'xacro', f'{robot_model}' + (f'_{workstation}' if workstation else '') + '.urdf.xacro')
+    xacro_path = os.path.join(robot_description_pkg,  "urdf", "robotiq_2f_85_gripper.urdf.xacro")
     robot_description_config = xacro.process_file(xacro_path)
     robot_description = {'robot_description': robot_description_config.toxml()}
 
-    # SRDF
-    robot_description_semantic_config = load_file(moveit_config_package, f'config/{robot_model}.srdf')
-    robot_description_semantic = {'robot_description_semantic': robot_description_semantic_config}
-
-    # Kinematics
-    kinematics_yaml = load_yaml(moveit_config_package, 'config/kinematics.yaml')
-    robot_description_kinematics = {'robot_description_kinematics': kinematics_yaml}
-
-    # Planning Group
-    planning_group = f"{robot_make}_arm"
-
-    # OMPL Planning
-    ompl_planning_pipeline_config = {
-        'planning_pipelines': ['ompl'],
-        'ompl': {
-            'planning_plugin': 'ompl_interface/OMPLPlanner',
-            'request_adapters': """default_planner_request_adapters/AddTimeOptimalParameterization \
-                                    default_planner_request_adapters/FixWorkspaceBounds \
-                                    default_planner_request_adapters/FixStartStateBounds \
-                                    default_planner_request_adapters/FixStartStateCollision \
-                                    default_planner_request_adapters/FixStartStatePathConstraints""",
-            'start_state_max_bounds_error': 0.1,
-        },
-    }
-    ompl_planning_yaml = load_yaml(moveit_config_package, 'config/ompl_planning.yaml')
-    ompl_planning_pipeline_config['ompl'].update(ompl_planning_yaml)
+    robot_state_publisher = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        name='robot_state_publisher',
+        output='both',
+        parameters=[robot_description]
+    )
 
     # Controllers
-    controllers_yaml = load_yaml(moveit_config_package, 'config/controllers.yaml')
+    controllers_yaml = load_yaml(description_package, 'config/robotiq_controllers.yaml')
     moveit_controllers = {
         'moveit_simple_controller_manager': controllers_yaml,
         'moveit_controller_manager': 'moveit_simple_controller_manager/MoveItSimpleControllerManager'
-    }
-
-    # Joint Limits
-    joint_limits_yaml = {
-        'robot_description_planning': load_yaml(
-            moveit_config_package, 'config/joint_limits.yaml')
     }
 
     # Other params
@@ -97,12 +69,6 @@ def launch_setup(context, *args, **kwargs):
         'trajectory_execution.allowed_execution_duration_scaling': 1.2,
         'trajectory_execution.allowed_goal_duration_margin': 0.5,
         'trajectory_execution.allowed_start_tolerance': 0.1,
-    }
-    planning_scene_monitor_parameters = {
-        'publish_planning_scene': True,
-        'publish_geometry_updates': True,
-        'publish_state_updates': True,
-        'publish_transforms_updates': True,
     }
 
     # Launch gz_sim
@@ -138,63 +104,6 @@ def launch_setup(context, *args, **kwargs):
         output='screen'
     )
 
-    run_move_group_node = Node(
-        package='moveit_ros_move_group',
-        executable='move_group',
-        output='screen',
-        emulate_tty=True,
-        parameters=[
-            robot_description,
-            robot_description_semantic,
-            robot_description_kinematics,
-            ompl_planning_pipeline_config,
-            trajectory_execution,
-            moveit_controllers,
-            planning_scene_monitor_parameters,
-            joint_limits_yaml,
-            {"use_sim_time": True},
-        ],
-    )
-
-    rviz_config_file = os.path.join(moveit_config_path, 'config', 'moveit.rviz')
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='log',
-        emulate_tty=True,
-        arguments=['-d', rviz_config_file],
-        parameters=[
-            robot_description,
-            robot_description_semantic,
-            ompl_planning_pipeline_config,
-            robot_description_kinematics,
-            joint_limits_yaml,
-        ],
-    )
-
-    robot_state_publisher = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        name='robot_state_publisher',
-        output='both',
-        parameters=[robot_description]
-    )
-
-    load_arm_controller = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=[f"{robot_make}_arm_controller"],
-        output="screen",
-    )
-
-    load_hand_controller = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=[f"{robot_make}_hand_controller"],
-        output="screen",
-    )
-
     gz_services_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
@@ -208,17 +117,49 @@ def launch_setup(context, *args, **kwargs):
         output='screen'
     )
 
+    move_group_capabilities = {
+        "capabilities": "move_group/ExecuteTaskSolutionCapability"
+    }
+
+    # run_move_group_node = Node(
+    #     package='moveit_ros_move_group',
+    #     executable='move_group',
+    #     output='screen',
+    #     emulate_tty=True,
+    #     parameters=[
+    #         robot_description,
+    #         # robot_description_semantic,
+    #         # robot_description_kinematics,
+    #         # ompl_planning_pipeline_config,
+    #         trajectory_execution,
+    #         moveit_controllers,
+    #         # planning_scene_monitor_parameters,
+    #         # joint_limits_yaml,
+    #         {"use_sim_time": True},
+    #         move_group_capabilities,
+    #     ],
+    # )
+
+    load_gripper_controller = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            'robotiq_gripper_controller',
+            "--controller-manager", "/controller_manager",
+            "--controller-manager-timeout", "120",
+        ],
+        output="screen",
+    )
+
     # start up all of the nodes
     return [
+        robot_state_publisher,
         gz_sim,
         spawn_robot,
         gz_topic_bridge,
-        rviz_node,
-        robot_state_publisher,
-        run_move_group_node,
-        load_arm_controller,
-        load_hand_controller,
         gz_services_bridge,
+        load_gripper_controller,
+        # run_move_group_node,
     ]
 
 def generate_launch_description():

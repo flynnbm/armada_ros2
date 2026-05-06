@@ -39,17 +39,9 @@ def launch_setup(context, *args, **kwargs):
     robot_source = LaunchConfiguration('robot_source').perform(context)
 
     description_package = f"{robot_source}_description"
-    bringup_package = f"{robot_source}_bringup"
     moveit_config_package = f"{robot_model}_{end_effector}_moveit_config"
-    gazebo_package = f"{robot_source}_gazebo"
 
     robot_description_pkg = get_package_share_directory(description_package)
-    bringup_package_path = get_package_share_directory(bringup_package)
-    moveit_config_path = get_package_share_directory(moveit_config_package)
-    gazebo_package_path = get_package_share_directory(gazebo_package)
-    ros_gz_sim_path = get_package_share_directory('ros_gz_sim')
-    mnet_pkg_path = get_package_share_directory('mnet_scenes_gazebo')
-    flexbe_webui_path = get_package_share_directory('flexbe_webui')
 
     home_dir = os.path.expanduser("~")
     gpd_library_path = os.path.join(home_dir, 'flexbe_ws', 'gpd')                   # modify this command if the workspace where gpd is installed is different than flexbe_ws
@@ -65,10 +57,9 @@ def launch_setup(context, *args, **kwargs):
 
     # Kinematics
     kinematics_yaml = load_yaml(moveit_config_package, 'config/kinematics.yaml')
-    robot_description_kinematics = {'robot_description_kinematics': kinematics_yaml}
 
     # Planning Group
-    planning_group = "arm"
+    planning_group = f"{robot_make}_arm"
 
     # OMPL Planning
     ompl_planning_pipeline_config = {
@@ -96,154 +87,11 @@ def launch_setup(context, *args, **kwargs):
         # split on whitespace into a list of class names
         ompl_planning_pipeline_config_mtc['ompl']['request_adapters'] = req_adapters.split()
 
-    # Controllers
-    controllers_yaml = load_yaml(moveit_config_package, 'config/controllers.yaml')
-    moveit_controllers = {
-        'moveit_simple_controller_manager': controllers_yaml,
-        'moveit_controller_manager': 'moveit_simple_controller_manager/MoveItSimpleControllerManager'
-    }
-
     # Joint Limits
     joint_limits_yaml = {
         'robot_description_planning': load_yaml(
             moveit_config_package, 'config/joint_limits.yaml')
     }
-
-    # Other params
-    trajectory_execution = {
-        'moveit_manage_controllers': True,
-        'trajectory_execution.allowed_execution_duration_scaling': 1.2,
-        'trajectory_execution.allowed_goal_duration_margin': 0.5,
-        'trajectory_execution.allowed_start_tolerance': 0.1,
-    }
-    planning_scene_monitor_parameters = {
-        'publish_planning_scene': True,
-        'publish_geometry_updates': True,
-        'publish_state_updates': True,
-        'publish_transforms_updates': True,
-    }
-
-    # Launch gz_sim
-    gz_sim = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(ros_gz_sim_path, 'launch', 'gz_sim.launch.py')),
-        launch_arguments=[
-            ('gz_args', f"-r {gazebo_package_path}/{robot_model}/worlds/{robot_model}.sdf --physics-engine gz-physics-bullet-featherstone-plugin")
-        ],
-    )
-
-    # Launch FlexBE operator control system (OCS)
-    flexbe_full = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(flexbe_webui_path, 'launch', 'flexbe_full.launch.py')),
-        launch_arguments={
-            'headless': LaunchConfiguration('headless')
-        }.items(),
-        condition=IfCondition(LaunchConfiguration('launch_flexbe')),
-    )
-
-    # Spawn the robot model into the gazebo world
-    spawn_entity = Node(
-        package="ros_gz_sim",
-        executable="create",
-        arguments=[
-            "-name", robot_model,
-            "-topic", "/robot_description",
-            "-x", "0.0",
-            "-y", "0.0",
-            "-z", "0.25",
-        ],
-        output="screen",
-    )
-
-    spawn_camera = Node(
-        package='ros_gz_sim',
-        executable='create',
-        arguments=[
-            '-file', f'{gazebo_package_path}/rgbd_camera/model/rgbd_camera_model.sdf',
-            '-name', 'rgbd_camera',
-            '-x', '0.0', '-y', '0.0', '-z', '1.0', '-R', '0.0', '-P', '0.7854', '-Y', '0.0',  # Adjust pose if needed, camera has no collision
-        ],
-        output='screen'
-    )
-
-    sim_camera_tf = Node(
-        package="tf2_ros",
-        executable="static_transform_publisher",
-        arguments=["0.0", "0", "0.75", "0", "0.7854", "0", "simple_pedestal", "rgbd_camera/camera_link/rgbd_camera"],   # transform from base of robot is camera height - height of base over ground (1.5 - 0.25)
-    )
-
-    bridge = Node(
-        package='ros_gz_bridge',
-        executable='parameter_bridge',
-        parameters=[{
-            'config_file': os.path.join(gazebo_package_path, f'{robot_model}', 'config', f'{robot_model}_bridge.yaml'),
-            'qos_overrides./tf_static.publisher.durability': 'transient_local',
-        }],
-        output='screen'
-    )
-
-    move_group_capabilities = {
-        "capabilities": "move_group/ExecuteTaskSolutionCapability"
-    }
-
-    run_move_group_node = Node(
-        package='moveit_ros_move_group',
-        executable='move_group',
-        output='screen',
-        emulate_tty=True,
-        parameters=[
-            robot_description,
-            robot_description_semantic,
-            robot_description_kinematics,
-            ompl_planning_pipeline_config,
-            trajectory_execution,
-            moveit_controllers,
-            planning_scene_monitor_parameters,
-            joint_limits_yaml,
-            {"use_sim_time": True},
-            move_group_capabilities,
-        ],
-    )
-
-    rviz_config_file = os.path.join(moveit_config_path, 'config', 'config.rviz')
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='log',
-        emulate_tty=True,
-        arguments=['-d', rviz_config_file],
-        parameters=[
-            robot_description,
-            robot_description_semantic,
-            ompl_planning_pipeline_config,
-            robot_description_kinematics,
-            joint_limits_yaml,
-        ],
-    )
-
-    robot_state_publisher = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        name='robot_state_publisher',
-        output='both',
-        parameters=[robot_description]
-    )
-
-    load_arm_controller = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["arm_controller"],
-        output="screen",
-    )
-
-    load_hand_controller = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["hand_controller"],
-        output="screen",
-    )
 
     move_cartesian = Node(
         package="move_group_ros2",
@@ -394,55 +242,6 @@ def launch_setup(context, *args, **kwargs):
         output="screen",
     )
 
-    add_collision_object_service = Node(
-        package="planning_scene_ros2",
-        executable="add_collision_object_service",
-        name="add_collision_object_service",
-        output="screen",
-        parameters=[
-            {"frame_id": "world"},
-        ],
-    )
-
-    spawn_object0 = Node(
-        package='ros_gz_sim',
-        executable='create',
-        arguments=[
-            '-file', f'{robot_description_pkg}/simple_objects/wood_cylinder_flared_1_25cm/model.sdf',
-            '-name', 'object_0',
-            '-x', '0.55', '-y', '0.075', '-z', '0.685', '-R', '0.0', '-P', '0.0', '-Y', '0.0',
-        ],
-        output='screen'
-    )
-
-    spawn_object1 = Node(
-        package='ros_gz_sim',
-        executable='create',
-        arguments=[
-            '-file', f'{robot_description_pkg}/simple_objects/wood_cylinder_flared_1_25cm/model.sdf',
-            '-name', 'object_1',
-            '-x', '0.75', '-y', '-0.18', '-z', '0.685', '-R', '0.0', '-P', '0.0', '-Y', '0.0', 
-        ],
-        output='screen'
-    )
-
-    spawn_object2 = Node(
-        package='ros_gz_sim',
-        executable='create',
-        arguments=[
-            '-file', f'{robot_description_pkg}/simple_objects/wood_cylinder_flared_1_25cm/model.sdf',
-            '-name', 'object_2',
-            '-x', '0.65', '-y', '0.225', '-z', '0.685', '-R', '0.0', '-P', '0.0', '-Y', '0.0',
-        ],
-        output='screen'
-    )
-
-    # Launch gz_sim
-    mnet_spawn_scene = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(mnet_pkg_path, 'launch', 'create_scene.launch.py')),
-    )
-
     detect_grasps = Node(
         package="gpd_ros",
         executable="grasp_detection_server",
@@ -457,32 +256,8 @@ def launch_setup(context, *args, **kwargs):
         ],
     )
 
-    gz_services_bridge = Node(
-        package='ros_gz_bridge',
-        executable='parameter_bridge',
-        name='gz_bridge_services',
-        # Use CLI-style mappings as arguments (most robust across distros)
-        arguments=[
-            '/world/panda/create@ros_gz_interfaces/srv/SpawnEntity',
-            '/world/panda/remove@ros_gz_interfaces/srv/DeleteEntity',
-            '/world/panda/set_pose@ros_gz_interfaces/srv/SetEntityPose',
-        ],
-        output='screen'
-    )
-
     # start up all of the nodes
     return [
-        gz_sim,
-        flexbe_full,
-        spawn_entity,
-        spawn_camera,
-        sim_camera_tf,
-        bridge,
-        rviz_node,
-        robot_state_publisher,
-        run_move_group_node,
-        load_arm_controller,
-        load_hand_controller,
         move_cartesian,
         move_named,
         move_pose,
@@ -494,14 +269,8 @@ def launch_setup(context, *args, **kwargs):
         euclidean_clustering_service,
         filter_by_indices_service,
         passthrough_filter_service,
-        add_collision_object_service,
-        spawn_object0,
-        spawn_object1,
-        spawn_object2,
-        # mnet_spawn_scene,
         detect_grasps,
         compute_grasp_poses,
-        gz_services_bridge,
     ]
 
 def generate_launch_description():
