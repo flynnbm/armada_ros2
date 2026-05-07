@@ -43,7 +43,7 @@ def _detect_python_and_env():
 def generate_launch_description():
     panda_sim_dir = get_package_share_directory('panda_sim')
     armada_bringup_dir = get_package_share_directory('armada_bringup')
-    moveit_config_dir = get_package_share_directory('panda_moveit_config')
+    moveit_config_dir = get_package_share_directory('panda_panda_hand_moveit_config')
 
     # Detect default python (conda / venv / sys)
     python_exec_default, mujoco_env_default, python_kind = _detect_python_and_env()
