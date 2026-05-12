@@ -3,7 +3,7 @@
 
   <!-- Generic-ish selectors -->
   <xacro:arg name="model" default="ur5e"/>
-  <xacro:arg name="arm_ip" default="0.0.0.0"/>
+  <xacro:arg name="arm_ip" default="10.10.10.152"/>
   <xacro:arg name="end_effector" default="robotiq_2f85"/>
   <xacro:arg name="ee_ip" default="0.0.0.0"/>
 
@@ -31,7 +31,7 @@
 
   <!-- Arm ros2_control block -->
   <xacro:armada_arm_ros2_control 
-    tf_prefix="$(arg arm_prefix)" 
+    prefix="$(arg arm_prefix)" 
     robot_ip="$(arg arm_ip)" >
   </xacro:armada_arm_ros2_control>
 
@@ -51,7 +51,7 @@
 
   <!-- End-effector: attach directly to UR flange (sensor_mount removed) -->
   <xacro:armada_ee
-    parent="$(arg model)_flange" >
+    parent="$(arg arm_prefix)flange" >
     <origin xyz="0 0 0" rpy="${pi/2} 0 ${pi/2}"/>
   </xacro:armada_ee>
 
