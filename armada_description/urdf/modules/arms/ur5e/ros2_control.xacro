@@ -38,7 +38,7 @@
                   value="$(arg initial_positions_file)"/>
 
   <!-- This is the generic macro your robot.urdf.xacro calls -->
-  <xacro:macro name="armada_arm_ros2_control" params="prefix">
+  <xacro:macro name="armada_arm_ros2_control" params="prefix robot_ip">
 
     <xacro:ur_ros2_control
       name="${prefix}ur_system"
