@@ -3,32 +3,36 @@
 
   <!-- Generic-ish selectors -->
   <xacro:arg name="model" default="ur5e"/>
+  <xacro:arg name="arm_ip" default="0.0.0.0"/>
   <xacro:arg name="end_effector" default="robotiq_2f85"/>
+  <xacro:arg name="ee_ip" default="0.0.0.0"/>
 
   <!-- ros2_control toggles (viewer should default off) -->
   <xacro:arg name="use_ros2_control" default="false"/>
   <xacro:arg name="sim_gazebo" default="false"/>
 
   <!-- Gazebo plugin wrapper -->
-  <xacro:include filename="$(find armada_gazebo)/xacro/modules/arms/$(arg model)/macro.gazebo.xacro"/>
+  <!-- <xacro:include filename="$(find armada_gazebo)/xacro/modules/arms/$(arg model)/macro.gazebo.xacro"/> -->
 
   <!-- Control Files -->
   <xacro:include filename="$(find armada_description)/urdf/modules/arms/$(arg model)/ros2_control.xacro"/>
   <xacro:include filename="$(find armada_description)/urdf/modules/end_effectors/$(arg end_effector)/ros2_control.xacro"/>
 
   <!-- IMPORTANT: use tf_prefix, not prefix, and make it model-based -->
-  <xacro:arg name="prefix" default="$(arg model)_"/>
+  <xacro:arg name="arm_prefix" default="$(arg model)_"/>
+  <xacro:arg name="ee_prefix" default="$(arg end_effector)_"/>
 
   <!-- Include your wrappers (not vendor macros directly) -->
   <xacro:include filename="$(find armada_description)/urdf/modules/arms/$(arg model)/arm.xacro"/>
   <xacro:include filename="$(find armada_description)/urdf/modules/end_effectors/$(arg end_effector)/ee.xacro"/>
 
   <!-- gazebo -->
-  <xacro:arm_gazebo model="$(arg model)" />
+  <!-- <xacro:arm_gazebo model="$(arg model)" /> -->
 
   <!-- Arm ros2_control block -->
   <xacro:armada_arm_ros2_control 
-    prefix="$(arg prefix)" >
+    tf_prefix="$(arg arm_prefix)" 
+    robot_ip="$(arg arm_ip)" >
   </xacro:armada_arm_ros2_control>
 
   <!-- Gripper ros2_control block -->
