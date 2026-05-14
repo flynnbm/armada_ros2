@@ -16,11 +16,13 @@
 
   <!-- Control Files -->
   <xacro:include filename="$(find armada_description)/urdf/modules/arms/$(arg model)/ros2_control.xacro"/>
-  <xacro:include filename="$(find armada_description)/urdf/modules/end_effectors/$(arg end_effector)/ros2_control.xacro"/>
+  <!-- <xacro:include filename="$(find armada_description)/urdf/modules/end_effectors/$(arg end_effector)/ros2_control.xacro"/> -->
 
   <!-- IMPORTANT: use tf_prefix, not prefix, and make it model-based -->
-  <xacro:arg name="arm_prefix" default="$(arg model)_"/>
-  <xacro:arg name="ee_prefix" default="$(arg end_effector)_"/>
+  <!-- <xacro:arg name="arm_prefix" default="$(arg model)_"/>
+  <xacro:arg name="ee_prefix" default="$(arg end_effector)_"/> -->
+  <xacro:arg name="arm_prefix" default=""/>
+  <xacro:arg name="ee_prefix" default=""/>
 
   <!-- Include your wrappers (not vendor macros directly) -->
   <xacro:include filename="$(find armada_description)/urdf/modules/arms/$(arg model)/arm.xacro"/>
@@ -36,9 +38,9 @@
   </xacro:armada_arm_ros2_control>
 
   <!-- Gripper ros2_control block -->
-  <xacro:armada_ee_ros2_control
+  <!-- <xacro:armada_ee_ros2_control
     prefix="" >
-  </xacro:armada_ee_ros2_control>
+  </xacro:armada_ee_ros2_control> -->
 
   <!-- World/root -->
   <link name="world"/>
@@ -46,7 +48,7 @@
   <!-- Arm: same scene placement you used before -->
   <xacro:armada_arm 
     parent="world">
-    <origin xyz="0 0 1" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
   </xacro:armada_arm>
 
   <!-- End-effector: attach directly to UR flange (sensor_mount removed) -->
