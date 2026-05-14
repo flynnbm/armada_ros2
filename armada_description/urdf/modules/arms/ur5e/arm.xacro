@@ -6,8 +6,9 @@
 
   <!-- UR5e-specific defaults -->
   <xacro:arg name="name" default="ur5e"/>
-  <xacro:arg name="tf_prefix" default="ur5e_"/>
-
+  <!-- <xacro:arg name="tf_prefix" default="ur5e_"/> -->
+  <xacro:arg name="tf_prefix" default=""/>
+  
   <xacro:arg name="joint_limit_params"
               default="$(find ur_description)/config/ur5e/joint_limits.yaml"/>
 
