@@ -45,6 +45,7 @@
       tf_prefix="${prefix}"
       kinematics_parameters_file="$(find ur_description)/config/ur5e/default_kinematics.yaml"
       transmission_hw_interface="hardware_interface/PositionJointInterface"
+      ur_type="ur5e"
 
       use_mock_hardware="$(arg use_mock_hardware)"
       mock_sensor_commands="$(arg mock_sensor_commands)"
