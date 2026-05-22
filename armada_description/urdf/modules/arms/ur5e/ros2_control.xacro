@@ -38,11 +38,12 @@
                   value="$(arg initial_positions_file)"/>
 
   <!-- This is the generic macro your robot.urdf.xacro calls -->
-  <xacro:macro name="armada_arm_ros2_control" params="prefix robot_ip">
+  <xacro:macro name="armada_arm_ros2_control" params="prefix robot_ip model">
 
     <xacro:ur_ros2_control
       name="${prefix}ur_system"
       tf_prefix="${prefix}"
+      ur_type="${model}"
       kinematics_parameters_file="$(find ur_description)/config/ur5e/default_kinematics.yaml"
       transmission_hw_interface="hardware_interface/PositionJointInterface"
 
