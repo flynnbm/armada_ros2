@@ -5,7 +5,7 @@
 <!-- |    EDITING THIS FILE BY HAND IS NOT RECOMMENDED                                 | -->
 <!-- =================================================================================== -->
     <xacro:macro name="armada_mount" params="prefix parent *origin" >
-        <joint name="panda_hand_joint" type="fixed">
+        <joint name="flange_mpm_joint" type="fixed">
             <parent link="${parent}" />
             <child link="${prefix}base_link" />
             <xacro:insert_block name="origin" />
@@ -13,12 +13,12 @@
         <link name="${prefix}base_link">
             <visual>
                 <geometry>
-                    <mesh filename="file://$(find armada_description)/meshes/modules/mpm/visual/mpm.stl" />
+                    <mesh filename="file://$(find armada_description)/meshes/modules/mounts/mpm/visual/mpm.stl" />
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="file://$(find armada_description)/meshes/modules/mpm/collision/mpm.stl" />
+                    <mesh filename="file://$(find armada_description)/meshes/modules//mounts/mpm/collision/mpm.stl" />
                 </geometry>
             </collision>
             <inertial>
