@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Load the RealSense D435i macro -->
+  <xacro:include filename="$(find realsense2_description)/urdf/_d435i.urdf.xacro"/>
+
+  <xacro:arg name="sensor_name" default="d435i"/>
+  <xacro:arg name="use_nominal_extrinsics" default="false"/>
+
+  <!-- Generic macro expected by robot.urdf.xacro -->
+  <xacro:macro name="armada_sensor" params="parent *origin">
+
+    <xacro:sensor_d435i
+      parent="${parent}"
+      name="$(arg sensor_name)"
+      use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
+
+      <xacro:insert_block name="origin"/>
+
+    </xacro:sensor_d435i>
+
+  </xacro:macro>
+
+</robot>
