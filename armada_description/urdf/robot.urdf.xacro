@@ -37,7 +37,8 @@
   <!-- Arm ros2_control block -->
   <xacro:armada_arm_ros2_control 
     prefix="$(arg arm_prefix)" 
-    robot_ip="$(arg arm_ip)" >
+    robot_ip="$(arg arm_ip)" 
+    model="$(arg model)" >
   </xacro:armada_arm_ros2_control>
 
   <!-- Gripper ros2_control block -->
@@ -50,7 +51,7 @@
 
   <!-- Arm: same scene placement you used before -->
   <xacro:armada_arm 
-    parent="world">
+    parent="world" >
     <origin xyz="0 0 0" rpy="0 0 0"/>
   </xacro:armada_arm>
 
