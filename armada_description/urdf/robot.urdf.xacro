@@ -1,96 +1,202 @@
 <?xml version="1.0"?>
 <robot name="armada_robot" xmlns:xacro="http://ros.org/wiki/xacro">
 
-  <!-- Generic-ish selectors -->
-  <xacro:arg name="model" default="ur5e"/>
-  <xacro:arg name="sensor" default="d435i"/>
-  <xacro:arg name="arm_ip" default="10.10.10.152"/>
-  <xacro:arg name="end_effector" default="robotiq_2f85"/>
-  <xacro:arg name="ee_ip" default="0.0.0.0"/>
+  <!-- ============================================================ -->
+  <!--                             ARGS                             -->
+  <!-- ============================================================ -->
 
-  <!-- ros2_control toggles (viewer should default off) -->
-  <xacro:arg name="use_ros2_control" default="false"/>
-  <xacro:arg name="sim_gazebo" default="false"/>
+  <!-- Robot Environment -->
+  <xacro:arg name="root_link" default="world"/>
 
-  <!-- Gazebo plugin wrapper -->
-  <!-- <xacro:include filename="$(find armada_gazebo)/xacro/modules/arms/$(arg model)/macro.gazebo.xacro"/> -->
+  <!-- Robot Embodiment Selectors (explore armada_description/urdf/modules for options) -->
+  <xacro:arg name="arm" default=""/>
+  <xacro:arg name="mount" default=""/>
+  <xacro:arg name="sensor" default=""/>
+  <xacro:arg name="controller" default=""/>
+  <xacro:arg name="tool_change_hardware" default=""/>
+  <xacro:arg name="end_effector" default=""/>
 
-  <!-- Control Files -->
-  <xacro:include filename="$(find armada_description)/urdf/modules/arms/$(arg model)/ros2_control.xacro"/>
-  <!-- <xacro:include filename="$(find armada_description)/urdf/modules/end_effectors/$(arg end_effector)/ros2_control.xacro"/> -->
+  <!-- Hardware IP Addresses -->
+  <xacro:arg name="arm_ip" default=""/>
+  <xacro:arg name="ee_ip" default=""/>
 
-  <!-- IMPORTANT: use tf_prefix, not prefix, and make it model-based -->
-  <!-- <xacro:arg name="arm_prefix" default="$(arg model)_"/>
-  <xacro:arg name="ee_prefix" default="$(arg end_effector)_"/> -->
-  <xacro:arg name="arm_prefix" default=""/>
-  <xacro:arg name="ee_prefix" default=""/>
+  <!-- Simulation Toggle (should allow choosing simulator and be blank by default; TODO) -->
+  <xacro:arg name="simulator" default=""/>
 
-  <!-- Include your wrappers (not vendor macros directly) -->
-  <xacro:include filename="$(find armada_description)/urdf/modules/arms/$(arg model)/arm.xacro"/>
-  <xacro:include filename="$(find armada_description)/urdf/modules/end_effectors/$(arg end_effector)/ee.xacro"/>
+  <!-- Simulation plugin wrapper -->
+  <!-- <xacro:include filename="$(find armada_gazebo)/xacro/modules/arms/$(arg model)/macro.gazebo.xacro"/> -->  
 
-  <!-- currently hard-code mount macro for testing -->
-  <xacro:include filename="$(find armada_description)/urdf/modules/mounts/mpm/mount.xacro"/>
-  <xacro:include filename="$(find armada_description)/urdf/modules/sensor_mounts/d435i_mount/sensor_mount.xacro"/>
-  <xacro:include filename="$(find armada_description)/urdf/modules/controllers/rpi5_enclosure/controller.xacro"/>
-  <xacro:include filename="$(find armada_description)/urdf/modules/sensors/$(arg sensor)/sensor.xacro"/>
+  <!-- ============================================================ -->
+  <!--                        ROS2 CONTROL                          -->
+  <!-- ============================================================ -->
 
-  <!-- gazebo -->
-  <!-- <xacro:arm_gazebo model="$(arg model)" /> -->
+  <!-- Arm Physical Hardware Conditional Block -->
+  <xacro:if value="${'$(arg arm_ip)' != ''}">
+    <!-- Control File Wrapper -->
+    <xacro:include filename="$(find armada_description)/urdf/modules/arms/$(arg arm)/ros2_control.xacro"/>
 
-  <!-- Arm ros2_control block -->
-  <xacro:armada_arm_ros2_control 
-    prefix="$(arg arm_prefix)" 
-    robot_ip="$(arg arm_ip)" 
-    model="$(arg model)" >
-  </xacro:armada_arm_ros2_control>
+    <!-- Arm ros2_control block -->
+    <xacro:armada_arm_ros2_control 
+      prefix="$(arg arm_prefix)" 
+      robot_ip="$(arg arm_ip)" 
+      model="$(arg arm)" >
+    </xacro:armada_arm_ros2_control>
+  </xacro:if>
 
-  <!-- Gripper ros2_control block -->
-  <!-- <xacro:armada_ee_ros2_control
-    prefix="" >
-  </xacro:armada_ee_ros2_control> -->
+  <!-- End Effector Physical Hardware Conditional Block -->
+  <xacro:if value="${'$(arg ee_ip)' != '' and '$(arg end_effector)' != ''}">
+    <!-- Control File Wrapper -->
+    <xacro:include filename="$(find armada_description)/urdf/modules/end_effectors/$(arg end_effector)/ros2_control.xacro"/>
 
-  <!-- World/root -->
-  <link name="world"/>
+    <!-- End Effector ros2_control block -->
+    <xacro:armada_ee_ros2_control
+      prefix="" >
+    </xacro:armada_ee_ros2_control>
+  </xacro:if>
 
-  <!-- Arm: same scene placement you used before -->
+  <!-- ============================================================ -->
+  <!--                          ROOT LINK                           -->
+  <!-- ============================================================ -->
+  <!-- root link will be artificial "world" link unless alternate root link is passed to macro -->
+
+  <!-- World/Root Link Conditional Block -->
+  <xacro:if value="${'$(arg root_link)' == 'world'}">
+    <!-- World/Root Link-->
+    <link name="world"/>
+  </xacro:if>  
+
+  <!-- ============================================================ -->
+  <!--                             ARM                              -->
+  <!-- ============================================================ -->
+
+  <!-- Arm Wrapper -->
+  <xacro:include filename="$(find armada_description)/urdf/modules/arms/$(arg arm)/arm.xacro"/>
+
+  <!-- Arm Macro -->
   <xacro:armada_arm 
-    parent="world" >
+    parent="$(arg root_link)"
+    tf_prefix="$(arg arm)_" >
     <origin xyz="0 0 0" rpy="0 0 0"/>
   </xacro:armada_arm>
 
-  <!-- parameterize mount prefix -->
-  <xacro:armada_mount 
-    parent="$(arg arm_prefix)flange"
-    prefix="mpm_">
-    <!-- depth of socket center part is 6mm -->
-    <origin xyz="-0.006 0 0" rpy="0 0 0"/>
-  </xacro:armada_mount>
+  <!-- ============================================================ -->
+  <!--                       PERIPHERAL MOUNT                       -->
+  <!-- ============================================================ -->
+  <!-- (custom or additional hardware to interface between arm and peripherals) -->
 
-  <xacro:armada_sensor_mount 
-    parent="mpm_base_link"
-    prefix="d435i_mount_">
-    <!-- depth of sensor mount is 16mm, same thickness as mpm so no translation in x -->
-    <origin xyz="0 0 0.175" rpy="0 0 0"/>
-  </xacro:armada_sensor_mount>
+  <!-- Mount Conditional Block -->
+  <xacro:if value="${'$(arg mount)' != ''}">
+    <!-- Mount Wrapper -->
+    <xacro:include filename="$(find armada_description)/urdf/modules/mounts/$(arg mount)/mount.xacro"/>
 
-  <xacro:armada_controller 
-    parent="mpm_base_link"
-    prefix="rpi5_enclosure_">
-    <!-- depth of sensor mount is 16mm, same thickness as mpm so no translation in x -->
-    <origin xyz="-0.0325 0 0.175" rpy="0 0 0"/>
-  </xacro:armada_controller>
+    <!-- Peripheral Mount Macro -->
+    <xacro:armada_mount 
+      parent="$(arg arm)_flange"
+      prefix="$(arg mount)_">
+      <!-- depth of socket center part is 6mm -->
+      <origin xyz="-0.006 0 0" rpy="0 0 0"/>
+    </xacro:armada_mount>
+  </xacro:if>
 
-  <xacro:armada_sensor
-    parent="d435i_mount_base_link">
-    <origin xyz="0.024675 0 -0.0125" rpy="0 0 0"/>
-  </xacro:armada_sensor>
+  <!-- ============================================================ -->
+  <!--                            SENSOR                            -->
+  <!-- ============================================================ -->
+  <!-- (e.g., depth sensors, cameras, lidar, etc.)-->
 
-  <!-- add logic, if mount then parent is mount, else arm flange -->
-  <xacro:armada_ee
-    parent="mpm_base_link" >
-    <!-- 16mm along the x axis -->
-    <origin xyz="0.016 0 0" rpy="${pi/2} 0 ${pi/2}"/>
-  </xacro:armada_ee>
+  <!-- Sensor Conditional Block -->
+  <xacro:if value="${'$(arg sensor)' != ''}">
+    <!-- Sensor Wrappers -->
+    <xacro:include filename="$(find armada_description)/urdf/modules/sensors/$(arg sensor)/sensor.xacro"/>
+    <xacro:include filename="$(find armada_description)/urdf/modules/sensor_mounts/$(arg sensor)_mount/sensor_mount.xacro"/>
 
-</robot>
+    <!-- Sensor Mount Macro -->
+    <xacro:armada_sensor_mount 
+      parent="$(arg mount)_base_link"
+      prefix="$(arg sensor)_mount_">
+      <!-- depth of sensor mount is 16mm, same thickness as mpm so no translation in x -->
+      <origin xyz="0 0 0.175" rpy="0 0 0"/>
+    </xacro:armada_sensor_mount>
+
+    <!-- Sensor Macro (e.g., camera, vision system, etc.)-->
+    <xacro:armada_sensor
+      parent="$(arg sensor)_mount_base_link">
+      <origin xyz="0.024675 0 -0.0125" rpy="0 0 0"/>
+    </xacro:armada_sensor>
+  </xacro:if>
+
+  <!-- ============================================================ -->
+  <!--                          CONTROLLER                          -->
+  <!-- ============================================================ -->
+  <!-- (e.g., raspberry pi 5 for sensor and gripper control + networking) -->
+
+  <!-- Controller Conditional Block -->
+  <xacro:if value="${'$(arg controller)' != ''}">
+    <!-- Controller Wrapper -->
+    <xacro:include filename="$(find armada_description)/urdf/modules/controllers/$(arg controller)_enclosure/controller.xacro"/>
+
+    <!-- Controller Macro -->
+    <xacro:armada_controller 
+      parent="$(arg mount)_base_link"
+      prefix="$(arg controller)_enclosure_">
+      <!-- depth of sensor mount is 16mm, same thickness as mpm so no translation in x -->
+      <origin xyz="-0.0325 0 0.175" rpy="0 0 0"/>
+    </xacro:armada_controller>
+  </xacro:if>
+
+  <!-- ============================================================ -->
+  <!--                      TOOL CHANGE HARDWARE                    -->
+  <!-- ============================================================ -->
+  <!-- (e.g., millibar or some other 3rd party or custom tool change hardware for robot tooling) -->
+
+  <!-- Quick Change Hardware Conditional Block -->
+  <xacro:if value="${'$(arg tool_change_hardware)' != ''}">
+    <!-- Conditional Robot Embodiment Selector -->
+    <xacro:property
+      name="tool_changer_parent"
+      value="${'$(arg arm)' + '_flange' if '$(arg mount)' == '' else '$(arg mount)' + '_base_link'}">
+    </xacro:property>
+
+    <!-- Quick Change Hardware Wrapper -->
+    <xacro:include filename="$(find armada_description)/urdf/modules/tool_change_hardware/$(arg tool_change_hardware)/tool_changer.xacro"/>
+
+    <!-- Quick Change Hardware Macro -->
+    <xacro:armada_tool_changer
+      parent="${tool_changer_parent}"
+      prefix="$(arg tool_change_hardware)_" >
+      <!-- 16mm along the x axis -->
+      <origin xyz="0.016 0 0" rpy="0 0 0"/>
+    </xacro:armada_tool_changer>
+  </xacro:if>
+
+  <!-- ============================================================ -->
+  <!--                         END EFFECTOR                         -->
+  <!-- ============================================================ -->
+
+  <!-- Conditional Robot Embodiment Selector -->
+  <xacro:property
+    name="ee_parent"
+    value="${
+      '$(arg tool_change_hardware)' + '_base_link'
+        if '$(arg tool_change_hardware)' != ''
+      else
+      '$(arg mount)' + '_base_link'
+        if '$(arg mount)' != ''
+      else
+      '$(arg arm)' + '_flange'
+    }">
+  </xacro:property>
+
+  <!-- End Effector Conditional Block -->
+  <xacro:if value="${'$(arg end_effector)' != ''}">
+    <!-- End Effector Wrapper -->
+    <xacro:include filename="$(find armada_description)/urdf/modules/end_effectors/$(arg end_effector)/ee.xacro"/>
+
+    <!-- End Effector Macro -->
+    <xacro:armada_ee
+      parent="${ee_parent}" >
+      <!-- 16mm along the x axis -->
+      <origin xyz="0.016 0 0" rpy="${pi/2} 0 ${pi/2}"/>
+    </xacro:armada_ee>
+  </xacro:if>
+
+</robot> <!-- armada_robot -->
