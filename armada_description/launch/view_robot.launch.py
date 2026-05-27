@@ -8,7 +8,11 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    model = LaunchConfiguration("model")
+    arm = LaunchConfiguration("arm")
+    mount = LaunchConfiguration("mount")
+    sensor = LaunchConfiguration("sensor")
+    controller = LaunchConfiguration("controller")
+    tool_change_hardware = LaunchConfiguration("tool_change_hardware")
     end_effector = LaunchConfiguration("end_effector")
 
     description_package = FindPackageShare("armada_description")
@@ -21,9 +25,12 @@ def generate_launch_description():
     robot_description = ParameterValue(
         Command([
             "xacro ", description_file,
-            " model:=", model,
+            " arm:=", arm,
+            " mount:=", mount,
+            " sensor:=", sensor,
+            " controller:=", controller,
+            " tool_change_hardware:=", tool_change_hardware,
             " end_effector:=", end_effector,
-            " use_ros2_control:=false"
         ]),
         value_type=str,
     )
@@ -48,7 +55,11 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        DeclareLaunchArgument("model", default_value="ur5e"),
+        DeclareLaunchArgument("arm", default_value="ur5e"),
+        DeclareLaunchArgument("mount", default_value="mpm"),
+        DeclareLaunchArgument("sensor", default_value="d435i"),
+        DeclareLaunchArgument("controller", default_value="rpi5"),
+        DeclareLaunchArgument("tool_change_hardware", default_value=""),
         DeclareLaunchArgument("end_effector", default_value="robotiq_2f85"),
 
         joint_state_publisher_gui_node,
