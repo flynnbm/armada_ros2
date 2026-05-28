@@ -13,12 +13,12 @@
         <link name="${prefix}base_link">
             <visual>
                 <geometry>
-                    <mesh filename="file://$(find armada_description)/meshes/modules/tool_change_hardware/millibar/visual/millibar_adapters.stl" />
+                    <mesh filename="file://$(find armada_description)/meshes/modules/tool_change_hardware/millibar/visual/MTC-UR-Combined.stl" />
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="file://$(find armada_description)/meshes/modules/tool_change_hardware/millibar/collision/millibar_adapters.stl" />
+                    <mesh filename="file://$(find armada_description)/meshes/modules/tool_change_hardware/millibar/collision/MTC-UR-Combined.stl" />
                 </geometry>
             </collision>
             <inertial>
