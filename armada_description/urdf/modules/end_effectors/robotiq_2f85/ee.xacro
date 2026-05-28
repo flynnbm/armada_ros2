@@ -3,16 +3,24 @@
 
   <!-- Vendor macro include stays here -->
   <xacro:include filename="$(find robotiq_description)/urdf/robotiq_2f_85_macro.urdf.xacro" />
+  <xacro:include filename="$(find armada_description)/urdf/modules/end_effectors/robotiq_2f85/cable_adapter.xacro" />
 
   <xacro:macro name="armada_ee" params="parent *origin">
+
+    <!-- Peripheral Mount Macro -->
+    <xacro:armada_ee_connector_adapter 
+      parent="${parent}"
+      prefix="cable_adapter_">
+      <xacro:insert_block name="origin"/>
+    </xacro:armada_ee_connector_adapter>
 
     <xacro:robotiq_gripper
       name="RobotiqGripperHardwareInterface"
       prefix=""
-      parent="${parent}"
+      parent="cable_adapter_base_link"
       use_fake_hardware="true"
       com_port="/dev/ttyUSB0">
-      <xacro:insert_block name="origin"/>
+      <origin xyz="0.0375 0 0" rpy="0 0 0"/>
     </xacro:robotiq_gripper>
 
   </xacro:macro>
