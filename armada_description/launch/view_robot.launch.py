@@ -59,7 +59,7 @@ def generate_launch_description():
         DeclareLaunchArgument("mount", default_value="mpm"),
         DeclareLaunchArgument("sensor", default_value="d435i"),
         DeclareLaunchArgument("controller", default_value="rpi5"),
-        DeclareLaunchArgument("tool_change_hardware", default_value=""),
+        DeclareLaunchArgument("tool_change_hardware", default_value="millibar"),
         DeclareLaunchArgument("end_effector", default_value="robotiq_2f85"),
 
         joint_state_publisher_gui_node,
