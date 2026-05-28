@@ -195,7 +195,7 @@
     <xacro:armada_ee
       parent="${ee_parent}" >
       <!-- 16mm along the x axis -->
-      <origin xyz="0.016 0 0" rpy="${pi/2} 0 ${pi/2}"/>
+      <origin xyz="0.03244 0 0" rpy="${pi/2} 0 ${pi/2}"/>
     </xacro:armada_ee>
   </xacro:if>
 
