@@ -23,6 +23,10 @@
   <!-- Simulation Toggle (should allow choosing simulator and be blank by default; TODO) -->
   <xacro:arg name="simulator" default=""/>
 
+  <!-- ============================================================ -->
+  <!--                         SIMULATION                           -->
+  <!-- ============================================================ -->
+
   <!-- Simulation plugin wrapper -->
   <!-- <xacro:include filename="$(find armada_gazebo)/xacro/modules/arms/$(arg model)/macro.gazebo.xacro"/> -->  
 
@@ -93,7 +97,6 @@
     <xacro:armada_mount 
       parent="$(arg arm)_flange"
       prefix="$(arg mount)_">
-      <!-- depth of socket center part is 6mm -->
       <origin xyz="-0.006 0 0" rpy="0 0 0"/>
     </xacro:armada_mount>
   </xacro:if>
@@ -113,7 +116,6 @@
     <xacro:armada_sensor_mount 
       parent="$(arg mount)_base_link"
       prefix="$(arg sensor)_mount_">
-      <!-- depth of sensor mount is 16mm, same thickness as mpm so no translation in x -->
       <origin xyz="0 0 0.175" rpy="0 0 0"/>
     </xacro:armada_sensor_mount>
 
@@ -138,7 +140,6 @@
     <xacro:armada_controller 
       parent="$(arg mount)_base_link"
       prefix="$(arg controller)_enclosure_">
-      <!-- depth of sensor mount is 16mm, same thickness as mpm so no translation in x -->
       <origin xyz="-0.0325 0 0.175" rpy="0 0 0"/>
     </xacro:armada_controller>
   </xacro:if>
@@ -163,7 +164,6 @@
     <xacro:armada_tool_changer
       parent="${tool_changer_parent}"
       prefix="$(arg tool_change_hardware)_" >
-      <!-- 16mm along the x axis -->
       <origin xyz="0.016 0 0" rpy="0 0 0"/>
     </xacro:armada_tool_changer>
   </xacro:if>
@@ -194,8 +194,8 @@
     <!-- End Effector Macro -->
     <xacro:armada_ee
       parent="${ee_parent}" >
-      <!-- 16mm along the x axis -->
-      <origin xyz="0.03244 0 0" rpy="${pi/2} 0 ${pi/2}"/>
+      <!-- 0.03244 -->
+      <origin xyz="0.03394 0 0" rpy="${pi/2} 0 ${pi/2}"/>
     </xacro:armada_ee>
   </xacro:if>
 
