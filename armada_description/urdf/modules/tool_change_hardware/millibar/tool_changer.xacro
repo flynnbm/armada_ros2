@@ -15,6 +15,9 @@
                 <geometry>
                     <mesh filename="file://$(find armada_description)/meshes/modules/tool_change_hardware/millibar/visual/MTC-UR-Combined.stl" />
                 </geometry>
+                <material name="gray">
+                    <color rgba="0.7 0.7 0.7 1.0"/>
+                </material>
             </visual>
             <collision>
                 <geometry>
