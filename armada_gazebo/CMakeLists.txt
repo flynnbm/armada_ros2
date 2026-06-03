@@ -11,12 +11,11 @@ find_package(ament_cmake REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-install(DIRECTORY panda/ DESTINATION share/${PROJECT_NAME}/panda)
-install(DIRECTORY tm5-700/ DESTINATION share/${PROJECT_NAME}/tm5-700)
-install(DIRECTORY rgbd_camera/ DESTINATION share/${PROJECT_NAME}/rgbd_camera)
-
 install(DIRECTORY
-  xacro
+  config
+  launch
+  rviz
+  sdf
   DESTINATION share/${PROJECT_NAME}
 )
 
