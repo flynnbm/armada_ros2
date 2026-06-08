@@ -41,7 +41,7 @@
 
     <!-- Arm ros2_control block -->
     <xacro:armada_arm_ros2_control 
-      prefix="$(arg arm_prefix)" 
+      prefix="$(arg arm)_" 
       robot_ip="$(arg arm_ip)" 
       model="$(arg arm)" >
     </xacro:armada_arm_ros2_control>
