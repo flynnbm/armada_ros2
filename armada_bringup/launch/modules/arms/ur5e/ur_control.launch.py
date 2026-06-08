@@ -274,28 +274,6 @@ def generate_launch_description():
     # UR specific arguments
     declared_arguments.append(
         DeclareLaunchArgument(
-            "ur_type",
-            description="Type/series of used UR robot.",
-            choices=[
-                "ur3",
-                "ur5",
-                "ur10",
-                "ur3e",
-                "ur5e",
-                "ur7e",
-                "ur10e",
-                "ur12e",
-                "ur16e",
-                "ur8long",
-                "ur15",
-                "ur18",
-                "ur20",
-                "ur30",
-            ],
-        )
-    )
-    declared_arguments.append(
-        DeclareLaunchArgument(
             "robot_ip", description="IP address by which the robot can be reached."
         )
     )
@@ -369,7 +347,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "description_launchfile",
             default_value=PathJoinSubstitution(
-                [FindPackageShare("armada_bringup"), "launch", "modules", "arms", "ur5e", "ur_rsp.launch.py"]
+                [FindPackageShare("armada_bringup"), "launch", "modules", "arms", "ur5e", "rsp.launch.py"]
             ),
             description="Launchfile (absolute path) providing the description. "
             "The launchfile has to start a robot_state_publisher node that "
@@ -572,7 +550,7 @@ def generate_launch_description():
                     ]
                 ),
                 "/",
-                LaunchConfiguration("ur_type"),
+                LaunchConfiguration("arm"),
                 "_update_rate.yaml",
             ],
         )

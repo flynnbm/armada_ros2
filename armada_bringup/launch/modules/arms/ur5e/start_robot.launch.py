@@ -27,60 +27,42 @@ def generate_launch_description():
     declared_arguments = []
     declared_arguments.append(
         DeclareLaunchArgument(
-            "ur_type",
-            description="Type/series of used UR robot.",
-            choices=[
-                "ur3",
-                "ur3e",
-                "ur5",
-                "ur5e",
-                "ur10",
-                "ur10e",
-                "ur16e",
-                "ur20",
-                "ur30",
-            ],
-            default_value="ur20",
+            "robot_ip", default_value="", description="IP address by which the robot can be reached.",
         )
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "robot_ip", description="IP address by which the robot can be reached.",
+            "ee_ip", default_value="", description="IP address by which the end effector can be reached."
         )
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "ee_ip", description="IP address by which the end effector can be reached."
+            "arm", default_value="", description="Robot arm (e.g., ur5e, tm5-700, etc., ...)"
         )
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "arm", description="Robot arm (e.g., ur5e, tm5-700, etc., ...)"
+            "mount", default_value="", description="Mouting hardware (e.g., mpm)"
         )
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "mount", description="Mouting hardware (e.g., mpm)"
+            "sensor", default_value="", description="Sensor device (e.g., d435i)"
         )
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "sensor", description="Sensor device (e.g., d435i)"
+            "controller", default_value="", description="Peripheral controller (e.g., rpi5)"
         )
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "controller", description="Peripheral controller (e.g., rpi5)"
+            "tool_change_hardware", default_value="", description="Tool change hardware (e.g., millibar)"
         )
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "tool_change_hardware", description="Tool change hardware (e.g., millibar)"
-        )
-    )
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "end_effector", description="End Effector (e.g., robotiq_2f85)"
+            "end_effector", default_value="", description="End Effector (e.g., robotiq_2f85)"
         )
     )
     declared_arguments.append(
@@ -95,8 +77,11 @@ def generate_launch_description():
                     [
                         PathJoinSubstitution(
                             [
-                                FindPackageShare("ur_robot_driver"),
+                                FindPackageShare("armada_bringup"),
                                 "launch",
+                                "modules",
+                                "arms",
+                                "ur5e",
                                 "ur_control.launch.py",
                             ]
                         )
@@ -111,7 +96,7 @@ def generate_launch_description():
                     "controller": controller,
                     "tool_change_hardware": tool_change_hardware,
                     "end_effector": end_effector,
-                    "tf_prefix": [LaunchConfiguration("ur_type"), "_"],
+                    "tf_prefix": [LaunchConfiguration("arm"), "_"],
                     "rviz_config_file": PathJoinSubstitution(
                         [
                             FindPackageShare("armada_description"),
