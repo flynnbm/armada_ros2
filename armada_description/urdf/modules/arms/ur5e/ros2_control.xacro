@@ -13,8 +13,8 @@
   <xacro:arg name="headless_mode" default="false"/>
 
   <xacro:arg name="script_filename" default="$(find ur_client_library)/resources/external_control.urscript"/>
-  <xacro:arg name="output_recipe_filename" default="$(find ur_robot_driver)/resources/rtde_input_recipe.txt"/>
-  <xacro:arg name="input_recipe_filename" default="$(find ur_robot_driver)/resources/rtde_output_recipe.txt"/>
+  <xacro:arg name="output_recipe_filename" default="$(find ur_robot_driver)/resources/rtde_output_recipe.txt"/>
+  <xacro:arg name="input_recipe_filename" default="$(find ur_robot_driver)/resources/rtde_input_recipe.txt"/>
 
   <xacro:arg name="script_command_port" default="50004"/>
   <xacro:arg name="reverse_port" default="50001"/>
@@ -60,7 +60,7 @@
       tool_device_name="$(arg tool_device_name)"
       tool_tcp_port="$(arg tool_tcp_port)"
 
-      robot_ip="$(arg robot_ip)"
+      robot_ip="${robot_ip}"
       script_filename="$(arg script_filename)"
       output_recipe_filename="$(arg output_recipe_filename)"
       input_recipe_filename="$(arg input_recipe_filename)"
