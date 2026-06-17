@@ -60,7 +60,9 @@ def generate_launch_description():
             end_effector,
         ]
     )
-    robot_description = {"robot_description": robot_description_content}
+    robot_description = {
+        "robot_description": ParameterValue(robot_description_content, value_type=str)
+    }
 
     declared_arguments = []
 
