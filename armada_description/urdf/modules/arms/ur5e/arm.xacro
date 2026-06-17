@@ -17,6 +17,8 @@
   <!-- Generic macro expected by robot.urdf.xacro -->
   <xacro:macro name="armada_arm" params="tf_prefix parent *origin">
 
+    <!-- ur_robot requires `name`, but this macro does not use it internally.
+     Link/joint names are controlled by tf_prefix. -->
     <xacro:ur_robot
       name=""
       tf_prefix="${tf_prefix}"
