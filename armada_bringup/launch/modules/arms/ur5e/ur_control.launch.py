@@ -53,7 +53,7 @@ def launch_setup(context):
     # Initialize Arguments
     robot_ip = LaunchConfiguration("robot_ip")
     ee_ip = LaunchConfiguration("ee_ip")
-    arm = LaunchConfiguration("arm")
+    ur_type = LaunchConfiguration("ur_type")
     mount = LaunchConfiguration("mount")
     sensor = LaunchConfiguration("sensor")
     controller = LaunchConfiguration("controller")
@@ -245,7 +245,7 @@ def launch_setup(context):
         launch_arguments={
             "arm_ip": robot_ip,
             "ee_ip": ee_ip,
-            "arm": arm,
+            "arm": ur_type,
             "mount": mount,
             "sensor": sensor,
             "controller": controller,
@@ -284,7 +284,7 @@ def generate_launch_description():
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "arm", description="Robot arm (e.g., ur5e, tm5-700, etc., ...)"
+            "ur_type", description="Robot arm (e.g., ur5e, tm5-700, etc., ...)"
         )
     )
     declared_arguments.append(
@@ -550,7 +550,7 @@ def generate_launch_description():
                     ]
                 ),
                 "/",
-                LaunchConfiguration("arm"),
+                LaunchConfiguration("ur_type"),
                 "_update_rate.yaml",
             ],
         )
