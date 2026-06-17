@@ -279,7 +279,9 @@ def generate_launch_description():
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "ee_ip", description="IP address by which the end effector can be reached."
+            "ee_ip", 
+            default_value="",
+            description="IP address by which the end effector can be reached."
         )
     )
     declared_arguments.append(
