@@ -117,8 +117,8 @@ def generate_launch_description():
     publish_robot_description_semantic = LaunchConfiguration("publish_robot_description_semantic")
 
     moveit_config = (
-        MoveItConfigsBuilder(robot_name="ur", package_name="ur_moveit_config")
-        .robot_description_semantic(Path("srdf") / "ur.srdf.xacro", {"name": ur_type})
+        MoveItConfigsBuilder(robot_name="armada_robot", package_name="ur5e_mpm_d435i_rpi5_millibar_r2f85_moveit_config")
+        .robot_description_semantic(Path("config") / "armada_robot.srdf")
         .to_moveit_configs()
     )
 
