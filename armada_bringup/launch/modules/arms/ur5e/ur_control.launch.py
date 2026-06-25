@@ -216,6 +216,8 @@ def launch_setup(context):
         "tcp_pose_broadcaster",
         "ur_configuration_controller",
         "friction_model_controller",
+        "robotiq_gripper_controller",
+        "robotiq_activation_controller",
     ]
     controllers_inactive = [
         "joint_trajectory_controller",
@@ -340,7 +342,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "controllers_file",
             default_value=PathJoinSubstitution(
-                [FindPackageShare("ur_robot_driver"), "config", "ur_controllers.yaml"]
+                [FindPackageShare("armada_bringup"), "config", "ur5e_robotiq_2f85", "ur_robotiq_controllers.yaml"]
             ),
             description="YAML file with the controllers configuration.",
         )
