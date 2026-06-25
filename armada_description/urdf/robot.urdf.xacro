@@ -19,6 +19,7 @@
   <!-- Hardware IP Addresses -->
   <xacro:arg name="arm_ip" default=""/>
   <xacro:arg name="ee_ip" default=""/>
+  <xacro:arg name="ee_usb" default="true"/>
 
   <!-- Simulation Toggle (should allow choosing simulator and be blank by default; TODO) -->
   <xacro:arg name="simulator" default=""/>
@@ -47,16 +48,6 @@
     </xacro:armada_arm_ros2_control>
   </xacro:if>
 
-  <!-- End Effector Physical Hardware Conditional Block -->
-  <xacro:if value="${'$(arg ee_ip)' != '' and '$(arg end_effector)' != ''}">
-    <!-- Control File Wrapper -->
-    <xacro:include filename="$(find armada_description)/urdf/modules/end_effectors/$(arg end_effector)/ros2_control.xacro"/>
-
-    <!-- End Effector ros2_control block -->
-    <xacro:armada_ee_ros2_control
-      prefix="" >
-    </xacro:armada_ee_ros2_control>
-  </xacro:if>
 
   <!-- ============================================================ -->
   <!--                          ROOT LINK                           -->
