@@ -7,7 +7,7 @@
   <!-- your stable wrapper macro -->
   <xacro:macro name="armada_ee_ros2_control" params="
       prefix
-      sim_gazebo:=true
+      sim_gazebo:=false
       use_fake_hardware:=false
       com_port:=/dev/ttyUSB0
       gripper_closed_position:=0.7929">
