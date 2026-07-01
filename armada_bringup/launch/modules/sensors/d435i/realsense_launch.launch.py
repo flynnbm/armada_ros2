@@ -25,15 +25,16 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             os.path.join(
                 get_package_share_directory("realsense2_camera"),
-                "launch",
-                "rs_launch.py",
+                "examples",
+                "pointcloud",
+                "rs_pointcloud_launch.py",
             )
         ),
         launch_arguments={
             "enable_color": "true",
             "enable_depth": "true",
             "pointcloud.enable": "true",
-            "align_depth.enable": "true",
+            "align_depth.enable": "false",
             "enable_sync": "true",
             "enable_rgbd": "false",
         }.items(),
@@ -53,14 +54,14 @@ def generate_launch_description():
 
     return LaunchDescription([
         DeclareLaunchArgument("parent_frame", default_value="d435i_link"),
-        DeclareLaunchArgument("child_frame", default_value="camera_depth_optical_frame"),
+        DeclareLaunchArgument("child_frame", default_value="camera_link"),
 
         DeclareLaunchArgument("x", default_value="0"),
         DeclareLaunchArgument("y", default_value="0"),
         DeclareLaunchArgument("z", default_value="0"),
-        DeclareLaunchArgument("roll", default_value="-1.5707"),
+        DeclareLaunchArgument("roll", default_value="0"),
         DeclareLaunchArgument("pitch", default_value="0"),
-        DeclareLaunchArgument("yaw", default_value="-1.5707"),
+        DeclareLaunchArgument("yaw", default_value="0"),
 
         realsense_launch,
         static_tf,
