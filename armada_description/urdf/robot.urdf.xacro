@@ -19,7 +19,6 @@
   <!-- Hardware IP Addresses -->
   <xacro:arg name="arm_ip" default=""/>
   <xacro:arg name="ee_ip" default=""/>
-  <xacro:arg name="ee_usb" default="true"/>
 
   <!-- Simulation Toggle (should allow choosing simulator and be blank by default; TODO) -->
   <xacro:arg name="simulator" default=""/>
@@ -47,7 +46,6 @@
       model="$(arg arm)" >
     </xacro:armada_arm_ros2_control>
   </xacro:if>
-
 
   <!-- ============================================================ -->
   <!--                          ROOT LINK                           -->
