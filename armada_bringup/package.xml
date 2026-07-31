@@ -9,6 +9,18 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <exec_depend>flexbe_webui</exec_depend>
+  <exec_depend>gpd_ros</exec_depend>
+  <exec_depend>moveit_configs_utils</exec_depend>
+  <exec_depend>move_group_ros2</exec_depend>
+  <exec_depend>moveit_ros_move_group</exec_depend>
+  <exec_depend>mtc_ros2</exec_depend>
+  <exec_depend>pcl_ros2</exec_depend>
+  <exec_depend>planning_scene_ros2</exec_depend>
+  <exec_depend>realsense2_camera</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>ur5e_mpm_d435i_rpi5_millibar_r2f85_moveit_config</exec_depend>
+
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
