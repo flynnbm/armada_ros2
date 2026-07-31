@@ -31,6 +31,11 @@ def generate_launch_description():
             )
         ),
         launch_arguments={
+            # FlexBE also declares an argument named "config_file", whose
+            # empty default otherwise leaks into this nested launch.  The
+            # RealSense launcher uses the literal string "''" to mean that no
+            # camera YAML file was supplied.
+            "config_file": "''",
             "enable_color": "true",
             "enable_depth": "true",
             "pointcloud.enable": "true",
