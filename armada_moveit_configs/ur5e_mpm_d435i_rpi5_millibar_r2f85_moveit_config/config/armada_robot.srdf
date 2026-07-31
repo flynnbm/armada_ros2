@@ -28,21 +28,21 @@
         <group name="end_effector"/>
     </group>
     <!--GROUP STATES: Purpose: Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
-    <group_state name="rest" group="arm">
-        <joint name="ur5e_elbow_joint" value="1.5707"/>
+    <group_state name="ready" group="arm">
+        <joint name="ur5e_elbow_joint" value="-1.5707"/>
         <joint name="ur5e_shoulder_lift_joint" value="-1.5707"/>
-        <joint name="ur5e_shoulder_pan_joint" value="1.5707"/>
-        <joint name="ur5e_wrist_1_joint" value="0"/>
+        <joint name="ur5e_shoulder_pan_joint" value="0"/>
+        <joint name="ur5e_wrist_1_joint" value="-1.5707"/>
         <joint name="ur5e_wrist_2_joint" value="1.5707"/>
         <joint name="ur5e_wrist_3_joint" value="0"/>
     </group_state>
-    <group_state name="perch" group="arm">
-        <joint name="ur5e_elbow_joint" value="1.5707"/>
-        <joint name="ur5e_shoulder_lift_joint" value="-1.5707"/>
-        <joint name="ur5e_shoulder_pan_joint" value="1.5707"/>
-        <joint name="ur5e_wrist_1_joint" value="-1.5707"/>
-        <joint name="ur5e_wrist_2_joint" value="-1.5707"/>
-        <joint name="ur5e_wrist_3_joint" value="3.14"/>
+    <group_state name="inspect" group="arm">
+        <joint name="ur5e_elbow_joint" value="-1.46608"/>
+        <joint name="ur5e_shoulder_lift_joint" value="-1.23918"/>
+        <joint name="ur5e_shoulder_pan_joint" value="0"/>
+        <joint name="ur5e_wrist_1_joint" value="-2.00713"/>
+        <joint name="ur5e_wrist_2_joint" value="1.5707"/>
+        <joint name="ur5e_wrist_3_joint" value="0"/>
     </group_state>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="end_effector" parent_link="ur5e_flange" group="end_effector" parent_group="arm"/>
