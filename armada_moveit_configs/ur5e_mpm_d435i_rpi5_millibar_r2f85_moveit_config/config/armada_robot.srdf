@@ -10,7 +10,7 @@
     <!--CHAINS: When a chain is specified, all the links along the chain (including endpoints) are included in the group. Additionally, all the joints that are parents to included links are also included. This means that joints along the chain and the parent joint of the base link are included in the group-->
     <!--SUBGROUPS: Groups can also be formed by referencing to already defined group names-->
     <group name="arm">
-        <chain base_link="ur5e_base_link" tip_link="ur5e_tool0"/>
+        <chain base_link="ur5e_base_link" tip_link="tcp_link"/>
     </group>
     <group name="end_effector">
         <joint name="robotiq_85_base_joint"/>
@@ -43,6 +43,20 @@
         <joint name="ur5e_wrist_1_joint" value="-2.00713"/>
         <joint name="ur5e_wrist_2_joint" value="1.5707"/>
         <joint name="ur5e_wrist_3_joint" value="0"/>
+    </group_state>
+    <group_state name="dropoff" group="arm">
+        <joint name="ur5e_elbow_joint" value="-1.53589"/>
+        <joint name="ur5e_shoulder_lift_joint" value="-1.69297"/>
+        <joint name="ur5e_shoulder_pan_joint" value="1.18682"/>
+        <joint name="ur5e_wrist_1_joint" value="-1.48353"/>
+        <joint name="ur5e_wrist_2_joint" value="1.57080"/>
+        <joint name="ur5e_wrist_3_joint" value="0"/>
+    </group_state>
+    <group_state name="open" group="end_effector">
+        <joint name="robotiq_85_left_knuckle_joint" value="0.0"/>
+    </group_state>
+    <group_state name="closed" group="end_effector">
+        <joint name="robotiq_85_left_knuckle_joint" value="0.7929"/>
     </group_state>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="end_effector" parent_link="ur5e_flange" group="end_effector" parent_group="arm"/>
