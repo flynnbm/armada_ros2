@@ -35,6 +35,14 @@
 
     </xacro:ur_robot>
 
+    <!-- Prototype manipulation TCP, 21 cm along the tool0 +Z axis. -->
+    <link name="tcp_link"/>
+    <joint name="${tf_prefix}tool0_tcp_joint" type="fixed">
+      <parent link="${tf_prefix}tool0"/>
+      <child link="tcp_link"/>
+      <origin xyz="0 0 0.21" rpy="0 0 0"/>
+    </joint>
+
   </xacro:macro>
 
 </robot>
