@@ -34,9 +34,8 @@ import yaml
 from pathlib import Path
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, RegisterEventHandler
+from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
-from launch.event_handlers import OnProcessExit
 from launch.substitutions import (
     LaunchConfiguration,
     PathJoinSubstitution,
@@ -144,13 +143,6 @@ def generate_launch_description():
     ld = LaunchDescription()
     ld.add_entity(declare_arguments())
 
-    wait_robot_description = Node(
-        package="ur_robot_driver",
-        executable="wait_for_robot_description",
-        output="screen",
-    )
-    ld.add_action(wait_robot_description)
-
     move_group_node = Node(
         package="moveit_ros_move_group",
         executable="move_group",
@@ -200,14 +192,10 @@ def generate_launch_description():
             },
         ],
     )
-
-    ld.add_action(
-        RegisterEventHandler(
-            OnProcessExit(
-                target_action=wait_robot_description,
-                on_exit=[move_group_node, rviz_node, servo_node],
-            )
-        ),
-    )
+    # These nodes receive the complete robot description from moveit_config and
+    # do not need to wait for a separate robot_description topic from the driver.
+    ld.add_action(move_group_node)
+    ld.add_action(rviz_node)
+    ld.add_action(servo_node)
 
     return ld
