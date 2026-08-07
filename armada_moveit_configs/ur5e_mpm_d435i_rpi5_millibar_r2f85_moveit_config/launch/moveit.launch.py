@@ -67,6 +67,19 @@ def declare_arguments():
             DeclareLaunchArgument("launch_rviz", default_value="true", description="Launch RViz?"
             ),
             DeclareLaunchArgument(
+                "rviz_config_file",
+                default_value=PathJoinSubstitution(
+                    [
+                        FindPackageShare(
+                            "ur5e_mpm_d435i_rpi5_millibar_r2f85_moveit_config"
+                        ),
+                        "config",
+                        "moveit.rviz",
+                    ]
+                ),
+                description="RViz config file to load.",
+            ),
+            DeclareLaunchArgument(
                 "ur_type",
                 description="Typo/series of used UR robot.",
                 choices=[
@@ -110,6 +123,7 @@ def declare_arguments():
 
 def generate_launch_description():
     launch_rviz = LaunchConfiguration("launch_rviz")
+    rviz_config_file = LaunchConfiguration("rviz_config_file")
     ur_type = LaunchConfiguration("ur_type")
     warehouse_sqlite_path = LaunchConfiguration("warehouse_sqlite_path")
     launch_servo = LaunchConfiguration("launch_servo")
@@ -167,9 +181,6 @@ def generate_launch_description():
         output="screen",
     )
 
-    rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare("ur_moveit_config"), "config", "moveit.rviz"]
-    )
     rviz_node = Node(
         package="rviz2",
         condition=IfCondition(launch_rviz),
