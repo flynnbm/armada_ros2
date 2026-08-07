@@ -25,9 +25,8 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             os.path.join(
                 get_package_share_directory("realsense2_camera"),
-                "examples",
-                "pointcloud",
-                "rs_pointcloud_launch.py",
+                "launch",
+                "rs_launch.py",
             )
         ),
         launch_arguments={
