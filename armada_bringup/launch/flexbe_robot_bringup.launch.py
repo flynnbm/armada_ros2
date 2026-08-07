@@ -27,6 +27,7 @@ def generate_launch_description():
     headless = LaunchConfiguration("headless")
     launch_flexbe = LaunchConfiguration("launch_flexbe")
     launch_realsense = LaunchConfiguration("launch_realsense")
+    launch_move_group = LaunchConfiguration("launch_move_group")
     pointcloud_topic = LaunchConfiguration("pointcloud_topic")
     target_frame = LaunchConfiguration("target_frame")
     gpd_config_file = LaunchConfiguration("gpd_config_file")
@@ -105,6 +106,7 @@ def generate_launch_description():
     run_move_group_node = Node(
         package="moveit_ros_move_group",
         executable="move_group",
+        condition=IfCondition(launch_move_group),
         output="screen",
         emulate_tty=True,
         parameters=[
@@ -322,6 +324,11 @@ def generate_launch_description():
             "launch_realsense",
             default_value="true",
             description="Start the D435i camera and its point-cloud stream.",
+        ),
+        DeclareLaunchArgument(
+            "launch_move_group",
+            default_value="true",
+            description="Start move_group (disable when another MoveIt launch owns it).",
         ),
         DeclareLaunchArgument(
             "pointcloud_topic",
