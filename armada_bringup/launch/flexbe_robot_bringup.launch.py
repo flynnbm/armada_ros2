@@ -224,6 +224,17 @@ def generate_launch_description():
         ],
     )
 
+    visualize_executed_grasp = Node(
+        package="gpd_ros",
+        executable="visualize_executed_grasp_server",
+        name="visualize_executed_grasp_server",
+        output="screen",
+        parameters=[
+            {"source_frame": target_frame},
+            {"use_sim_time": use_sim_time},
+        ],
+    )
+
     pointcloud_parameters = [
         {"default_camera_topic": pointcloud_topic},
         {"target_frame": target_frame},
@@ -357,6 +368,7 @@ def generate_launch_description():
         passthrough_filter_service,
         detect_grasps,
         compute_grasp_poses,
+        visualize_executed_grasp,
         add_collision_object_service,
     ]
 
